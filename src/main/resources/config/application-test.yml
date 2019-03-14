@@ -1,0 +1,8 @@
+logging:
+  level:
+    org.springframework: info
+    org.vaulttec: debug
+
+gitlab:
+  serverUrl: http://torstens-macbook-pro.local:8083
+  personalAccessToken: d9FPuic1fFd-gzNvpmw4

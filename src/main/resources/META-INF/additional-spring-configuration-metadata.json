@@ -1,0 +1,29 @@
+{
+"properties": [
+  {
+    "name": "proxy.host",
+    "type": "java.lang.String",
+    "description": "Internet proxy host name"
+  },
+  {
+    "name": "proxy.port",
+    "type": "java.lang.Integer",
+    "description": "Internet proxy port"
+  },
+  {
+    "name": "enforcer.system-hook-token",
+    "description": "Token used in GitLab System Hook"
+  },
+  {
+    "name": "gitlab.server-url",
+    "description": "URL of GitLab server"
+  },
+  {
+    "name": "gitlab.personal-access-token",
+    "description": "Personal access token of user with admin permission in GitLab"
+  },
+  {
+    "name": "gitlab.per-page",
+    "description": "Number of entries per response from GitLab"
+  }
+]}
