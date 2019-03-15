@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
+import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
@@ -64,8 +65,11 @@ public class ProtectedBranchRule implements Rule {
 
     // If protected branch already exists then remove it first
     // Otherwise we will end up with error 409 (Protected branch already exists)
-    if (client.getProtectedBranchesForProject(event.getId()) != null) {
-      client.unprotectBranchForProject(event.getId(), name);
+    List<ProtectedBranch> branches = client.getProtectedBranchesForProject(event.getId());
+    if (branches != null) {
+      if (branches.stream().anyMatch(branch -> name.equals(branch.getName()))) {
+        client.unprotectBranchForProject(event.getId(), name);
+      }
     }
     client.protectBranchForProject(event.getId(), name, settings);
   }
