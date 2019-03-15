@@ -86,7 +86,7 @@ public class GitLabClient extends AbstractRestClient {
       apiCall += (apiCall.contains("?") ? "&" : "?") + settings[i] + "={" + settings[i] + "}";
       uriVariables.put(settings[i], settings[i + 1]);
     }
-    LOG.debug("Updating group: {}", uriVariables);
+    LOG.debug("Updating group '{}': {}", groupId, uriVariables);
     uriVariables.put("groupId", groupId);
     return makeReadApiCall(apiCall, HttpMethod.PUT, RESPONSE_TYPE_GROUP, uriVariables);
   }
@@ -106,7 +106,7 @@ public class GitLabClient extends AbstractRestClient {
     if (!StringUtils.hasText(groupId)) {
       throw new IllegalStateException("GitLab group ID required");
     }
-    LOG.debug("Retrieving projects for group: search={}", search);
+    LOG.debug("Retrieving projects for group '{}': search={}", groupId, search);
     String apiCall = "/groups/{groupId}/projects";
     Map<String, String> uriVariables = createUriVariables("groupId", groupId);
     if (StringUtils.hasText(search)) {
@@ -120,7 +120,7 @@ public class GitLabClient extends AbstractRestClient {
     if (!StringUtils.hasText(projectId)) {
       throw new IllegalStateException("GitLab project ID required");
     }
-    LOG.debug("Retrieving branches for project: search={}", search);
+    LOG.debug("Retrieving branches for project '{}': search={}", projectId, search);
     String apiCall = "/projects/{projectId}/repository/branches";
     Map<String, String> uriVariables = createUriVariables("projectId", projectId);
     if (StringUtils.hasText(search)) {
@@ -134,7 +134,7 @@ public class GitLabClient extends AbstractRestClient {
     if (!StringUtils.hasText(projectId)) {
       throw new IllegalStateException("GitLab project ID required");
     }
-    LOG.debug("Retrieving protected branches for project");
+    LOG.debug("Retrieving protected branches for project '{}'", projectId);
     String apiCall = "/projects/{projectId}/protected_branches/{name}";
     Map<String, String> uriVariables = createUriVariables("projectId", projectId, "name", name);
     return makeReadApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_PROTECTED_BRANCH, uriVariables);
@@ -144,7 +144,7 @@ public class GitLabClient extends AbstractRestClient {
     if (!StringUtils.hasText(projectId)) {
       throw new IllegalStateException("GitLab project ID required");
     }
-    LOG.debug("Retrieving protected branches for project");
+    LOG.debug("Retrieving protected branches for project '{}'", projectId);
     String apiCall = "/projects/{projectId}/protected_branches";
     Map<String, String> uriVariables = createUriVariables("projectId", projectId);
     return makeReadListApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_PROTECTED_BRANCHES, uriVariables);
