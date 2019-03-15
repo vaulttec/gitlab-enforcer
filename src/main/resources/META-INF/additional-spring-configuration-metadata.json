@@ -1,5 +1,4 @@
-{
-"properties": [
+{"properties": [
   {
     "name": "proxy.host",
     "type": "java.lang.String",
@@ -25,5 +24,9 @@
   {
     "name": "gitlab.per-page",
     "description": "Number of entries per response from GitLab"
+  },
+  {
+    "name": "rules",
+    "description": "List of enforcer rules"
   }
 ]}
