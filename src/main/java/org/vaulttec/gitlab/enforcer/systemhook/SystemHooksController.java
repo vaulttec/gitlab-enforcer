@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -44,13 +45,17 @@ public class SystemHooksController {
   @PostMapping(value = "/systemhooks", consumes = "application/json")
   public void process(@RequestHeader(name = "X-Gitlab-Event", required = true) String header,
       @RequestHeader(name = "X-Gitlab-Token", required = true) String token, @RequestBody SystemEvent event) {
-    if (config.getSystemHookToken().equals(token) && event.getEventName() != SystemEventName.OTHER) {
-      LOG.info("Processing {} event '{}'", header, event.getEventName());
-      rules.forEach(rule -> {
-        if (rule.supports(event)) {
-          rule.handle(event);
-        }
-      });
+    if (StringUtils.hasText(config.getSystemHookToken()) && !config.getSystemHookToken().equals(token)) {
+      LOG.warn("Unexpected token '{}' - ignoring {} event '{}'", token, header, event.getEventName());
+    } else {
+      if (event.getEventName() != SystemEventName.OTHER) {
+        LOG.info("Processing {} event '{}'", header, event.getEventName());
+        rules.forEach(rule -> {
+          if (rule.supports(event)) {
+            rule.handle(event);
+          }
+        });
+      }
     }
   }
 }
