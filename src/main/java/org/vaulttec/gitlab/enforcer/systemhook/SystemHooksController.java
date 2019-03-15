@@ -17,8 +17,6 @@
  */
 package org.vaulttec.gitlab.enforcer.systemhook;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -26,20 +24,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.vaulttec.gitlab.enforcer.EnforcerClient;
 import org.vaulttec.gitlab.enforcer.EnforcerConfig;
-import org.vaulttec.gitlab.enforcer.rule.Rule;
 
 @RestController
 public class SystemHooksController {
 
   private static final Logger LOG = LoggerFactory.getLogger(SystemHooksController.class);
 
+  private EnforcerClient client;
   private EnforcerConfig config;
-  private List<Rule> rules;
 
-  public SystemHooksController(EnforcerConfig config, List<Rule> rules) {
+  public SystemHooksController(EnforcerClient client, EnforcerConfig config) {
+    this.client = client;
     this.config = config;
-    this.rules = rules;
   }
 
   @PostMapping(value = "/systemhooks", consumes = "application/json")
@@ -50,11 +48,7 @@ public class SystemHooksController {
     } else {
       if (event.getEventName() != SystemEventName.OTHER) {
         LOG.info("Processing {} event '{}'", header, event.getEventName());
-        rules.forEach(rule -> {
-          if (rule.supports(event)) {
-            rule.handle(event);
-          }
-        });
+        client.enforce(event);
       }
     }
   }

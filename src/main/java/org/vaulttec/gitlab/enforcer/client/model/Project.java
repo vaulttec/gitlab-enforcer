@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Project {
   private String id;
   private String path;
+  private String name;
 
   public String getId() {
     return id;
@@ -38,6 +39,14 @@ public class Project {
 
   public void setPath(String path) {
     this.path = path;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   @Override
@@ -72,6 +81,6 @@ public class Project {
 
   @Override
   public String toString() {
-    return "GLProject [" + path + " (" + id + ")]";
+    return "GLProject [id=" + id + ", path=" + path + ", name=" + name + "]";
   }
 }
