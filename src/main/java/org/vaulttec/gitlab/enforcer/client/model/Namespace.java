@@ -17,25 +17,24 @@
  */
 package org.vaulttec.gitlab.enforcer.client.model;
 
-import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Project {
+public class Namespace {
   private String id;
-  private String path;
   private String name;
-  private Namespace namespace;
+  private String path;
+  private Kind kind;
 
-  public Project() {
+  public Namespace() {
     super();
   }
 
-  public Project(String id, String name, Namespace namespace) {
+  public Namespace(String id, String name, Kind kind) {
     this.id = id;
     this.name = name;
-    this.namespace = namespace;
+    this.kind = kind;
   }
 
   public String getId() {
@@ -46,6 +45,13 @@ public class Project {
     this.id = id;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+  }
+
   public String getPath() {
     return path;
   }
@@ -54,24 +60,12 @@ public class Project {
     this.path = path;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Namespace getNamespace() {
-    return namespace;
-  }
-
-  public void setName(Namespace namespace) {
-    this.namespace = namespace;
-  }
-
   public Kind getKind() {
-    return namespace != null ? namespace.getKind() : null;
+    return kind;
+  }
+
+  public void setKind(Kind kind) {
+    this.kind = kind;
   }
 
   @Override
@@ -93,7 +87,7 @@ public class Project {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Project other = (Project) obj;
+    Namespace other = (Namespace) obj;
     if (id == null) {
       if (other.id != null) {
         return false;
@@ -106,6 +100,15 @@ public class Project {
 
   @Override
   public String toString() {
-    return "GLProject [id=" + id + ", path=" + path + ", name=" + name + "]";
+    return "Namespace [id=" + id + ", kind=" + kind + ", name=" + name + ", path=" + path + "]";
+  }
+
+  public enum Kind {
+    USER, GROUP;
+
+    @JsonCreator
+    public static Kind fromName(String name) {
+      return valueOf(name.toUpperCase());
+    }
   }
 }

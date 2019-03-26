@@ -34,6 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.vaulttec.gitlab.enforcer.Application;
 import org.vaulttec.gitlab.enforcer.client.model.Branch;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
+import org.vaulttec.gitlab.enforcer.client.model.Namespace;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
 import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
@@ -77,7 +78,7 @@ public class GitLabClientIntegrationTest {
     List<Project> projects = client.getProjects(null);
     assertThat(projects).isNotNull();
     for (Project project : projects) {
-      LOG.info("{} ({})", project.getPath(), project.getId());
+      LOG.info("{} ({}, {})", project.getPath(), project.getKind(), project.getId());
     }
   }
 
@@ -90,7 +91,7 @@ public class GitLabClientIntegrationTest {
       List<Project> projects = client.getProjectsForGroup(group.getId(), null);
       assertThat(projects).isNotNull();
       for (Project project : projects) {
-        LOG.info("  {} ({})", project.getPath(), project.getId());
+        LOG.info("  {} ({}, {})", project.getPath(), project.getKind(), project.getId());
       }
     }
   }
@@ -151,5 +152,14 @@ public class GitLabClientIntegrationTest {
     LOG.info("   {}: push={}; merge={}; unprotect={}", branch.getName(), branch.getPushAccessLevels(),
         branch.getMergeAccessLevels(), branch.getUnprotectAccessLevels());
     assertThat(client.unprotectBranchForProject(project.getId(), PROTECTED_BRANCH_NAME)).isTrue();
+  }
+
+  @Test
+  public void testGetNamespaces() {
+    List<Namespace> namespaces = client.getNamespaces(null);
+    assertThat(namespaces).isNotNull().isNotEmpty();
+    for (Namespace namespace : namespaces) {
+      LOG.info("{} ({}, {}):", namespace.getPath(), namespace.getKind(), namespace.getId());
+    }
   }
 }

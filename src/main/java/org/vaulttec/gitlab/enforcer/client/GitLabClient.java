@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.vaulttec.gitlab.enforcer.client.model.Branch;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
+import org.vaulttec.gitlab.enforcer.client.model.Namespace;
 import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.http.client.AbstractRestClient;
@@ -50,11 +51,15 @@ public class GitLabClient extends AbstractRestClient {
   };
   protected static final ParameterizedTypeReference<List<Project>> RESPONSE_TYPE_PROJECTS = new ParameterizedTypeReference<List<Project>>() {
   };
+  protected static final ParameterizedTypeReference<Project> RESPONSE_TYPE_PROJECT = new ParameterizedTypeReference<Project>() {
+  };
   protected static final ParameterizedTypeReference<List<Branch>> RESPONSE_TYPE_BRANCHES = new ParameterizedTypeReference<List<Branch>>() {
   };
   protected static final ParameterizedTypeReference<ProtectedBranch> RESPONSE_TYPE_PROTECTED_BRANCH = new ParameterizedTypeReference<ProtectedBranch>() {
   };
   protected static final ParameterizedTypeReference<List<ProtectedBranch>> RESPONSE_TYPE_PROTECTED_BRANCHES = new ParameterizedTypeReference<List<ProtectedBranch>>() {
+  };
+  protected static final ParameterizedTypeReference<List<Namespace>> RESPONSE_TYPE_NAMESPACES = new ParameterizedTypeReference<List<Namespace>>() {
   };
 
   GitLabClient(GitLabClientConfig config, RestTemplateBuilder restTemplateBuilder) {
@@ -77,7 +82,7 @@ public class GitLabClient extends AbstractRestClient {
     if (!StringUtils.hasText(groupId)) {
       throw new IllegalStateException("GitLab group ID required");
     }
-   if (settings.length % 2 != 0) {
+    if (settings.length % 2 != 0) {
       throw new IllegalStateException("Key-value required - uneven number of settings");
     }
     String apiCall = "/groups/{groupId}";
@@ -209,5 +214,16 @@ public class GitLabClient extends AbstractRestClient {
       LOG.error("API call {} '{}' {} failed", method.name(), url, uriVariables, e);
     }
     return null;
+  }
+
+  public List<Namespace> getNamespaces(String search) {
+    LOG.debug("Retrieving namespaces: search={}", search);
+    String apiCall = "/namespaces";
+    Map<String, String> uriVariables = createUriVariables();
+    if (StringUtils.hasText(search)) {
+      apiCall += "?search={search}";
+      uriVariables.put("search", search);
+    }
+    return makeReadListApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_NAMESPACES, uriVariables);
   }
 }
