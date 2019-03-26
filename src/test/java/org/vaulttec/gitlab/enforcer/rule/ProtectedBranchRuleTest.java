@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
@@ -48,8 +48,8 @@ public class ProtectedBranchRuleTest {
   @Before
   public void setUp() throws Exception {
     client = mock(GitLabClient.class);
-    config = new HashMap<>();
-    config.put("name", "master");
+    config = new LinkedHashMap<>();
+    config.put("name", BRANCH_NAME);
   }
 
   @Test
@@ -64,6 +64,9 @@ public class ProtectedBranchRuleTest {
   public void testHandleGroupProject() {
     when(client.getProject(PROJECT_ID))
         .thenReturn(new Project(PROJECT_ID, PROJECT_NAME, new Namespace("1", "ns1", Kind.GROUP)));
+    config.put("push_access_level", "30");
+    config.put("merge_access_level", "40");
+    config.put("unprotect_access_level", "60");
 
     Rule rule = new ProtectedBranchRule();
     rule.init(client, config);
@@ -71,7 +74,8 @@ public class ProtectedBranchRuleTest {
     rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
     verify(client, never()).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
-    verify(client).protectBranchForProject(PROJECT_ID, BRANCH_NAME);
+    verify(client).protectBranchForProject(PROJECT_ID, BRANCH_NAME, "push_access_level", "30", "merge_access_level",
+        "40", "unprotect_access_level", "60");
   }
 
   @Test

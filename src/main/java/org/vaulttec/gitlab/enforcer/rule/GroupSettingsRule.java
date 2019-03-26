@@ -17,8 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -37,12 +36,8 @@ public class GroupSettingsRule implements Rule {
   @Override
   public void init(GitLabClient client, Map<String, String> config) {
     this.client = client;
-    List<String> configAsList = new ArrayList<>();
-    config.forEach((key, value) -> {
-      configAsList.add(key);
-      configAsList.add(value);
-    });
-    this.settings = configAsList.toArray(new String[configAsList.size()]);
+    this.settings = config.entrySet().stream().flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream())
+        .toArray(size -> new String[size]);
   }
 
   @Override

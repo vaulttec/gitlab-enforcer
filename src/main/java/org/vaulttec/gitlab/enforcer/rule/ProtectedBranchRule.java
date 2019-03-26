@@ -17,7 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -50,12 +50,8 @@ public class ProtectedBranchRule implements Rule {
     if (StringUtils.hasText(skipUserProjectsText)) {
       this.skipUserProjects = Boolean.parseBoolean(skipUserProjectsText);
     }
-    List<String> configAsList = new ArrayList<>();
-    config.entrySet().stream().filter(e -> e.getKey() != "name" && e.getKey() != "skipUserProjects").forEach(e -> {
-      configAsList.add(e.getKey());
-      configAsList.add(e.getValue());
-    });
-    this.settings = configAsList.toArray(new String[configAsList.size()]);
+    this.settings = config.entrySet().stream().filter(e -> e.getKey() != "name" && e.getKey() != "skipUserProjects")
+        .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
   }
 
   @Override
