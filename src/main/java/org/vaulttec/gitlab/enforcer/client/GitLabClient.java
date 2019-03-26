@@ -107,6 +107,16 @@ public class GitLabClient extends AbstractRestClient {
     return makeReadListApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_PROJECTS, uriVariables);
   }
 
+  public Project getProject(String projectId) {
+    if (!StringUtils.hasText(projectId)) {
+      throw new IllegalStateException("GitLab project ID required");
+    }
+    LOG.debug("Retrieve project '{}'", projectId);
+    String apiCall = "/projects/{projectId}";
+    Map<String, String> uriVariables = createUriVariables("projectId", projectId);
+    return makeReadApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_PROJECT, uriVariables);
+  }
+
   public List<Project> getProjectsForGroup(String groupId, String search) {
     if (!StringUtils.hasText(groupId)) {
       throw new IllegalStateException("GitLab group ID required");

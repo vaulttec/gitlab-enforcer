@@ -83,6 +83,15 @@ public class GitLabClientIntegrationTest {
   }
 
   @Test
+  public void testGetProject() {
+    List<Project> projects = client.getProjects(null);
+    assertThat(projects).isNotNull().isNotEmpty();
+    Project project = client.getProject(projects.get(0).getId());
+    assertThat(project).isNotNull().hasFieldOrPropertyWithValue("name", projects.get(0).getName());
+    LOG.info("{} ({}, {})", project.getPath(), project.getKind(), project.getId());
+  }
+
+  @Test
   public void testGetProjectsForGroup() {
     List<Group> groups = client.getGroups(null);
     assertThat(groups).isNotNull().isNotEmpty();

@@ -32,6 +32,14 @@ public class ProtectedBranch {
   @JsonProperty("unprotect_access_levels")
   private List<AccessLevel> unprotectAccessLevels;
 
+  public ProtectedBranch() {
+    super();
+  }
+
+  public ProtectedBranch(String name) {
+    this.name = name;
+  }
+
   public String getName() {
     return name;
   }

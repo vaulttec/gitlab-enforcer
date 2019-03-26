@@ -19,12 +19,14 @@ rules:
       share_with_group_lock: true
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     config:
+      skipUserProjects: true
       name: master
       push_access_level: 30
       merge_access_level: 40
       unprotect_access_level: 60
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     config:
+      skipUserProjects: true
       name: release/*
       push_access_level: 40
       merge_access_level: 40

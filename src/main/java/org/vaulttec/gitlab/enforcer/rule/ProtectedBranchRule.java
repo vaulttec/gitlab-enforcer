@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
+import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
@@ -35,6 +36,7 @@ public class ProtectedBranchRule implements Rule {
 
   private GitLabClient client;
   private String name;
+  private boolean skipUserProjects;
   private String[] settings;
 
   @Override
@@ -44,12 +46,14 @@ public class ProtectedBranchRule implements Rule {
     if (!StringUtils.hasText(this.name)) {
       throw new IllegalStateException("Missing branch name");
     }
+    String skipUserProjectsText = config.get("skipUserProjects");
+    if (StringUtils.hasText(skipUserProjectsText)) {
+      this.skipUserProjects = Boolean.parseBoolean(skipUserProjectsText);
+    }
     List<String> configAsList = new ArrayList<>();
-    config.forEach((key, value) -> {
-      if (!key.equals("name")) {
-        configAsList.add(key);
-        configAsList.add(value);
-      }
+    config.entrySet().stream().filter(e -> e.getKey() != "name" && e.getKey() != "skipUserProjects").forEach(e -> {
+      configAsList.add(e.getKey());
+      configAsList.add(e.getValue());
     });
     this.settings = configAsList.toArray(new String[configAsList.size()]);
   }
@@ -61,16 +65,18 @@ public class ProtectedBranchRule implements Rule {
 
   @Override
   public void handle(SystemEvent event) {
-    LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPath());
+    if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
+      LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPath());
 
-    // If protected branch already exists then remove it first
-    // Otherwise we will end up with error 409 (Protected branch already exists)
-    List<ProtectedBranch> branches = client.getProtectedBranchesForProject(event.getId());
-    if (branches != null) {
-      if (branches.stream().anyMatch(branch -> name.equals(branch.getName()))) {
-        client.unprotectBranchForProject(event.getId(), name);
+      // If protected branch already exists then remove it first
+      // Otherwise we will end up with error 409 (Protected branch already exists)
+      List<ProtectedBranch> branches = client.getProtectedBranchesForProject(event.getId());
+      if (branches != null) {
+        if (branches.stream().anyMatch(branch -> name.equals(branch.getName()))) {
+          client.unprotectBranchForProject(event.getId(), name);
+        }
       }
+      client.protectBranchForProject(event.getId(), name, settings);
     }
-    client.protectBranchForProject(event.getId(), name, settings);
   }
 }
