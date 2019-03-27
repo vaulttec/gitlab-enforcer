@@ -53,6 +53,20 @@ public class ProtectedBranchRuleTest {
   }
 
   @Test
+  public void testRuleInfo() {
+    config.put("skipUserProjects", "true");
+    config.put("push_access_level", "30");
+    config.put("merge_access_level", "40");
+    config.put("unprotect_access_level", "60");
+
+    Rule rule = new ProtectedBranchRule();
+    rule.init(client, config);
+
+    assertThat(rule.getInfo()).endsWith(
+        " (skipUserProject=true, name=master, push_access_level=30, merge_access_level=40, unprotect_access_level=60)");
+  }
+
+  @Test
   public void testSupports() {
     Rule rule = new ProtectedBranchRule();
     assertThat(rule.supports(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME))).isTrue();

@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
@@ -33,6 +34,25 @@ public class GroupSettingsRuleTest {
 
   private static final String GROUP_ID = "42";
   private static final String GROUP_NAME = "group42";
+
+  private GitLabClient client;
+  private Map<String, String> config;
+
+  @Before
+  public void setUp() throws Exception {
+    client = mock(GitLabClient.class);
+    config = new LinkedHashMap<>();
+    config.put("membership_lock", "true");
+    config.put("share_with_group_lock", "true");
+  }
+
+  @Test
+  public void testRuleInfo() {
+    Rule rule = new GroupSettingsRule();
+    rule.init(client, config);
+
+    assertThat(rule.getInfo()).endsWith(" (membership_lock=true, share_with_group_lock=true)");
+  }
 
   @Test
   public void testSupports() {
@@ -44,11 +64,6 @@ public class GroupSettingsRuleTest {
 
   @Test
   public void testHandle() {
-    GitLabClient client = mock(GitLabClient.class);
-    Map<String, String> config = new LinkedHashMap<>();
-    config.put("membership_lock", "true");
-    config.put("share_with_group_lock", "true");
-
     Rule rule = new GroupSettingsRule();
     rule.init(client, config);
 

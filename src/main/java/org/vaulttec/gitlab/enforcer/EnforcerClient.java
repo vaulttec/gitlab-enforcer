@@ -17,6 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -41,6 +42,14 @@ public class EnforcerClient {
   public EnforcerClient(GitLabClient client, List<Rule> rules) {
     this.client = client;
     this.rules = rules;
+  }
+
+  public List<String> getRulesInfo() {
+    List<String> rulesInfo = new ArrayList<>();
+    for (Rule rule : rules) {
+      rulesInfo.add(rule.getInfo());
+    }
+    return rulesInfo;
   }
 
   public void enforce() {

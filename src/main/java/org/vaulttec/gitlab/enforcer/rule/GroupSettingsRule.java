@@ -34,6 +34,22 @@ public class GroupSettingsRule implements Rule {
   private String[] settings;
 
   @Override
+  public String getInfo() {
+    StringBuffer info = new StringBuffer("Enforce Group Settings");
+    if (settings != null) {
+      info.append(" (");
+      for (int i = 0; i < settings.length; i +=2) {
+        info.append(settings[i]).append("=").append(settings[i + 1]);
+        if (i < settings.length - 2) {
+          info.append(", ");
+        }
+      }
+      info.append(")");
+    }
+    return info.toString();
+  }
+
+  @Override
   public void init(GitLabClient client, Map<String, String> config) {
     this.client = client;
     this.settings = config.entrySet().stream().flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream())

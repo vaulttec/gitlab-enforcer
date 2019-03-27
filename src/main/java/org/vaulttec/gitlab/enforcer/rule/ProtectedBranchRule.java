@@ -40,6 +40,22 @@ public class ProtectedBranchRule implements Rule {
   private String[] settings;
 
   @Override
+  public String getInfo() {
+    StringBuffer info = new StringBuffer("Enforce Protected Branch");
+    if (name != null) {
+      info.append(" (").append("skipUserProject=").append(skipUserProjects).append(", name=").append(name).append(", ");
+      for (int i = 0; i < settings.length; i += 2) {
+        info.append(settings[i]).append("=").append(settings[i + 1]);
+        if (i < settings.length - 2) {
+          info.append(", ");
+        }
+      }
+      info.append(")");
+    }
+    return info.toString();
+  }
+
+  @Override
   public void init(GitLabClient client, Map<String, String> config) {
     this.client = client;
     this.name = config.get("name");

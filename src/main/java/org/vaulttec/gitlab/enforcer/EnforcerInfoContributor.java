@@ -15,20 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaulttec.gitlab.enforcer.rule;
+package org.vaulttec.gitlab.enforcer;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import org.vaulttec.gitlab.enforcer.client.GitLabClient;
-import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
+import org.springframework.boot.actuate.info.Info.Builder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.info.InfoContributor;
+import org.springframework.stereotype.Component;
 
-public interface Rule {
+@Component
+public class EnforcerInfoContributor implements InfoContributor {
 
-  String getInfo();
+  @Autowired
+  private EnforcerClient enforcerTask;
 
-  void init(GitLabClient client, Map<String, String> config);
-
-  boolean supports(SystemEvent event);
-
-  void handle(SystemEvent event);
+  @Override
+  public void contribute(Builder builder) {
+    Map<String, Object> enforcerDetails = new HashMap<>();
+    enforcerDetails.put("rules", enforcerTask.getRulesInfo());
+    builder.withDetail("enforcer", enforcerDetails);
+  }
 }
