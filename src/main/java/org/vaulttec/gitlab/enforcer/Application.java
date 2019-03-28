@@ -23,12 +23,21 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 public class Application implements ApplicationRunner {
 
   @Autowired
   private ApplicationContext context;
+
+  @Configuration
+  @Profile("!test")
+  @EnableScheduling
+  static class SchedulingConfiguration {
+  }
 
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
@@ -38,7 +47,7 @@ public class Application implements ApplicationRunner {
   public void run(ApplicationArguments args) throws Exception {
     if (args.containsOption("enforce")) {
       EnforcerClient enforcer = context.getBean(EnforcerClient.class);
-      enforcer.enforce();
+      enforcer.enforce(EnforcerExecution.COMMAND);
       SpringApplication.exit(context, () -> 0);
     }
   }

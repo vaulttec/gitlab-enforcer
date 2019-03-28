@@ -35,6 +35,7 @@ public class EnforcerInfoContributor implements InfoContributor {
   public void contribute(Builder builder) {
     Map<String, Object> enforcerDetails = new HashMap<>();
     enforcerDetails.put("rules", enforcerTask.getRulesInfo());
+    enforcerDetails.put("lastEnforce", enforcerTask.getLastEnforceTime());
     builder.withDetail("enforcer", enforcerDetails);
   }
 }

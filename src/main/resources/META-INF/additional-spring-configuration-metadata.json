@@ -10,23 +10,33 @@
     "description": "Internet proxy port"
   },
   {
+    "name": "enforcer.rate",
+    "type": "java.lang.Long",
+    "description": "Fixed rate (in msec) the enforcer task is scheduled"
+  },
+  {
     "name": "enforcer.system-hook-token",
+    "type": "java.lang.String",
     "description": "Token used in GitLab System Hook"
   },
   {
     "name": "gitlab.server-url",
+    "type": "java.lang.String",
     "description": "URL of GitLab server"
   },
   {
     "name": "gitlab.personal-access-token",
+    "type": "java.lang.String",
     "description": "Personal access token of user with admin permission in GitLab"
   },
   {
     "name": "gitlab.per-page",
+    "type": "java.lang.Integer",
     "description": "Number of entries per response from GitLab"
   },
   {
     "name": "rules",
-    "description": "List of enforcer rules"
+    "type": "java.util.List<org.vaulttec.gitlab.enforcer.rule.RuleConfig>",
+    "description": "List of enforcer rule configurations"
   }
 ]}

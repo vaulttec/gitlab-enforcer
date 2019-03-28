@@ -23,21 +23,29 @@ import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 
-public interface Rule {
+public abstract class AbstractRule implements Rule {
 
-  String getInfo();
+  protected Use use;
+  protected GitLabClient client;
 
-  void init(Rule.Use use, GitLabClient client, Map<String, String> config);
+  @Override
+  public void init(Use use, GitLabClient client, Map<String, String> config) {
+    this.use = use;
+    this.client = client;
+  }
 
-  boolean supports(EnforcerExecution execution, SystemEvent event);
-
-  void handle(SystemEvent event);
-
-  public enum Use {
-    ONCE, ALWAYS;
-
-    public static Use fromName(String name) {
-      return valueOf(name.toUpperCase());
+  @Override
+  public boolean supports(EnforcerExecution execution, SystemEvent event) {
+    switch (execution) {
+    case COMMAND:
+    case HOOK:
+      return true;
+    case SCHEDULED:
+      if (use == Use.ALWAYS) {
+        return true;
+      }
+      break;
     }
+    return false;
   }
 }

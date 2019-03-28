@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
@@ -49,7 +50,7 @@ public class GroupSettingsRuleTest {
   @Test
   public void testRuleInfo() {
     Rule rule = new GroupSettingsRule();
-    rule.init(client, config);
+    rule.init(null, null, config);
 
     assertThat(rule.getInfo()).endsWith(" (membership_lock=true, share_with_group_lock=true)");
   }
@@ -57,15 +58,18 @@ public class GroupSettingsRuleTest {
   @Test
   public void testSupports() {
     Rule rule = new GroupSettingsRule();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME))).isTrue();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.PROJECT_CREATE, null, null))).isFalse();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
+    assertThat(
+        rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME)))
+            .isTrue();
+    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, null, null)))
+        .isFalse();
+    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
   }
 
   @Test
   public void testHandle() {
     Rule rule = new GroupSettingsRule();
-    rule.init(client, config);
+    rule.init(null, client, config);
 
     rule.handle(new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME));
     verify(client).updateGroup(GROUP_ID, "membership_lock", "true", "share_with_group_lock", "true");

@@ -14,6 +14,7 @@ proxy:
   port: 3128
 
 enforcer:
+  rate: 300000  # 5 min
   systemHookToken:
 
 gitlab:
@@ -23,10 +24,12 @@ gitlab:
 
 rules:
   - rule: org.vaulttec.gitlab.enforcer.rule.GroupSettingsRule
+    use: once
     config:
       membership_lock: true
       share_with_group_lock: true
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
+    use: always
     config:
       skipUserProjects: true
       name: master
@@ -34,6 +37,7 @@ rules:
       merge_access_level: 40
       unprotect_access_level: 60
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
+    use: always
     config:
       skipUserProjects: true
       name: release/*

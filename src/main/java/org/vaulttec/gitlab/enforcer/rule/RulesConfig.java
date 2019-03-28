@@ -47,7 +47,7 @@ public class RulesConfig {
     List<Rule> result = new ArrayList<>(rules.size());
     for (RuleConfig config : rules) {
       Rule rule = config.getRule().newInstance();
-      rule.init(client, config.getConfig());
+      rule.init(config.getUse(), client, config.getConfig());
       result.add(rule);
     }
     return result;
@@ -55,6 +55,7 @@ public class RulesConfig {
 
   protected static class RuleConfig {
     private Class<Rule> rule;
+    private Rule.Use use = Rule.Use.ONCE;
     private Map<String, String> config = new HashMap<>();
 
     public Class<Rule> getRule() {
@@ -63,6 +64,14 @@ public class RulesConfig {
 
     public void setRule(Class<Rule> rule) {
       this.rule = rule;
+    }
+
+    public Rule.Use getUse() {
+      return use;
+    }
+
+    public void setUse(Rule.Use use) {
+      this.use = use;
     }
 
     public Map<String, String> getConfig() {

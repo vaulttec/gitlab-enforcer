@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
@@ -60,7 +61,7 @@ public class ProtectedBranchRuleTest {
     config.put("unprotect_access_level", "60");
 
     Rule rule = new ProtectedBranchRule();
-    rule.init(client, config);
+    rule.init(null, client, config);
 
     assertThat(rule.getInfo()).endsWith(
         " (skipUserProject=true, name=master, push_access_level=30, merge_access_level=40, unprotect_access_level=60)");
@@ -69,9 +70,9 @@ public class ProtectedBranchRuleTest {
   @Test
   public void testSupports() {
     Rule rule = new ProtectedBranchRule();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME))).isTrue();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.GROUP_CREATE, null, null))).isFalse();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
+    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME))).isTrue();
+    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.GROUP_CREATE, null, null))).isFalse();
+    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
   }
 
   @Test
@@ -83,7 +84,7 @@ public class ProtectedBranchRuleTest {
     config.put("unprotect_access_level", "60");
 
     Rule rule = new ProtectedBranchRule();
-    rule.init(client, config);
+    rule.init(null, client, config);
 
     rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
@@ -99,7 +100,7 @@ public class ProtectedBranchRuleTest {
     when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME)));
 
     Rule rule = new ProtectedBranchRule();
-    rule.init(client, config);
+    rule.init(null, client, config);
 
     rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
@@ -114,7 +115,7 @@ public class ProtectedBranchRuleTest {
 
     config.put("skipUserProjects", "true");
     Rule rule = new ProtectedBranchRule();
-    rule.init(client, config);
+    rule.init(null, client, config);
 
     rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProject(PROJECT_ID);
@@ -130,7 +131,7 @@ public class ProtectedBranchRuleTest {
 
     config.put("skipUserProjects", "true");
     Rule rule = new ProtectedBranchRule();
-    rule.init(client, config);
+    rule.init(null, client, config);
 
     rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProject(PROJECT_ID);

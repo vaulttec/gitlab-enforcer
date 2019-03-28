@@ -24,17 +24,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
-public class ProtectedBranchRule implements Rule {
+public class ProtectedBranchRule extends AbstractRule {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProtectedBranchRule.class);
 
-  private GitLabClient client;
   private String name;
   private boolean skipUserProjects;
   private String[] settings;
@@ -56,8 +56,8 @@ public class ProtectedBranchRule implements Rule {
   }
 
   @Override
-  public void init(GitLabClient client, Map<String, String> config) {
-    this.client = client;
+  public void init(Use use, GitLabClient client, Map<String, String> config) {
+    super.init(use, client, config);
     this.name = config.get("name");
     if (!StringUtils.hasText(this.name)) {
       throw new IllegalStateException("Missing branch name");
@@ -71,8 +71,8 @@ public class ProtectedBranchRule implements Rule {
   }
 
   @Override
-  public boolean supports(SystemEvent event) {
-    return SystemEventName.PROJECT_CREATE.equals(event.getEventName());
+  public boolean supports(EnforcerExecution execution, SystemEvent event) {
+    return super.supports(execution, event) && SystemEventName.PROJECT_CREATE.equals(event.getEventName());
   }
 
   @Override

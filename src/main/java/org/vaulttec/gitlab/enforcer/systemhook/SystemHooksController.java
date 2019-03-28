@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.vaulttec.gitlab.enforcer.EnforcerClient;
 import org.vaulttec.gitlab.enforcer.EnforcerConfig;
+import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 
 @RestController
 public class SystemHooksController {
@@ -48,7 +49,7 @@ public class SystemHooksController {
     } else {
       if (event.getEventName() != SystemEventName.OTHER) {
         LOG.info("Processing {} event '{}'", header, event.getEventName());
-        client.enforce(event);
+        client.enforce(EnforcerExecution.HOOK, event);
       }
     }
   }

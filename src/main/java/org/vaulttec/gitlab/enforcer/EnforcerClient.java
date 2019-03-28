@@ -17,11 +17,13 @@
  */
 package org.vaulttec.gitlab.enforcer;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
@@ -38,6 +40,7 @@ public class EnforcerClient {
 
   private GitLabClient client;
   private List<Rule> rules;
+  private Instant lastEnforceTime;
 
   public EnforcerClient(GitLabClient client, List<Rule> rules) {
     this.client = client;
@@ -52,14 +55,23 @@ public class EnforcerClient {
     return rulesInfo;
   }
 
-  public void enforce() {
+  public Instant getLastEnforceTime() {
+    return lastEnforceTime;
+  }
+
+  @Scheduled(fixedRateString = "${enforcer.rate}")
+  public void enforceScheduled() {
+    enforce(EnforcerExecution.SCHEDULED);
+  }
+
+  public void enforce(EnforcerExecution execution) {
     LOG.info("Enforcing rules for all GitLab groups and projects");
     List<Group> groups = client.getGroups(null);
     if (groups != null) {
       groups.forEach(group -> {
         SystemEvent event = new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(group.getId())
             .name(group.getName()).path(group.getPath()).build();
-        enforce(event);
+        enforce(execution, event);
       });
     }
     List<Project> projects = client.getProjects(null);
@@ -67,14 +79,15 @@ public class EnforcerClient {
       projects.forEach(project -> {
         SystemEvent event = new SystemEventBuilder().eventName(SystemEventName.PROJECT_CREATE).id(project.getId())
             .name(project.getName()).path(project.getPath()).build();
-        enforce(event);
+        enforce(execution, event);
       });
     }
+    lastEnforceTime = Instant.now();
   }
 
-  public void enforce(SystemEvent event) {
+  public void enforce(EnforcerExecution execution, SystemEvent event) {
     rules.forEach(rule -> {
-      if (rule.supports(event)) {
+      if (rule.supports(execution, event)) {
         rule.handle(event);
       }
     });

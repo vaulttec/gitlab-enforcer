@@ -15,29 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaulttec.gitlab.enforcer.rule;
+package org.vaulttec.gitlab.enforcer;
 
-import java.util.Map;
+public enum EnforcerExecution {
+  HOOK, SCHEDULED, COMMAND;
 
-import org.vaulttec.gitlab.enforcer.EnforcerExecution;
-import org.vaulttec.gitlab.enforcer.client.GitLabClient;
-import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
-
-public interface Rule {
-
-  String getInfo();
-
-  void init(Rule.Use use, GitLabClient client, Map<String, String> config);
-
-  boolean supports(EnforcerExecution execution, SystemEvent event);
-
-  void handle(SystemEvent event);
-
-  public enum Use {
-    ONCE, ALWAYS;
-
-    public static Use fromName(String name) {
-      return valueOf(name.toUpperCase());
-    }
+  public static EnforcerExecution fromName(String name) {
+    return valueOf(name.toUpperCase());
   }
 }

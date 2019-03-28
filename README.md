@@ -14,26 +14,32 @@ These rules are defined in [`src/main/resources/config/application.yml`](src/mai
 ```
 rules:
   - rule: org.vaulttec.gitlab.enforcer.rule.GroupSettingsRule
+    use: once
     config:
       membership_lock: true
       share_with_group_lock: true
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
+    use: always
     config:
       skipUserProjects: true
       name: master
       push_access_level: 30
       merge_access_level: 40
-      unprotect_access_level: 60
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
+    use: always
     config:
       skipUserProjects: true
       name: release/*
       push_access_level: 40
       merge_access_level: 40
-      unprotect_access_level: 60
 ```
 
-
+All the rules marked with the configuration property `use: always` are automatically re-enforced at a specified interval (msec)
+```
+enforcer:
+  rate: 300000  # 5 min
+```
+ 
 
 ## Install Maven Wrapper
 ```
