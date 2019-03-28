@@ -31,6 +31,14 @@ public class AccessLevel {
   @JsonProperty("access_level_description")
   private String description;
 
+  public AccessLevel() {
+    super();
+  }
+
+  public AccessLevel(Permission permission) {
+    this.permission = permission;
+  }
+
   public Permission getPermission() {
     return permission;
   }

@@ -17,6 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer.client.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,6 +39,19 @@ public class ProtectedBranch {
 
   public ProtectedBranch(String name) {
     this.name = name;
+    this.pushAccessLevels = new ArrayList<>();
+    this.mergeAccessLevels = new ArrayList<>();
+    this.unprotectAccessLevels = new ArrayList<>();
+  }
+
+  public ProtectedBranch(String name, String... settings) {
+    this(name);
+    for (int i = 0; i < settings.length; i += 2) {
+      List<AccessLevel> levels = getAccessLevelsByName(settings[i]);
+      if (levels != null) {
+        levels.add(new AccessLevel(Permission.fromAccessLevel(settings[i + 1])));
+      }
+    }
   }
 
   public String getName() {
@@ -70,6 +84,30 @@ public class ProtectedBranch {
 
   public void setUnprotectAccessLevels(List<AccessLevel> accessLevels) {
     this.unprotectAccessLevels = accessLevels;
+  }
+
+  public List<AccessLevel> getAccessLevelsByName(String name) {
+    switch (name) {
+    case "push_access_level":
+      return pushAccessLevels;
+    case "merge_access_level":
+      return mergeAccessLevels;
+    case "unprotect_access_level":
+      return unprotectAccessLevels;
+    }
+    return null;
+  }
+
+  public boolean hasAccessLevel(String name, Permission permission) {
+    List<AccessLevel> levels = getAccessLevelsByName(name);
+    if (levels != null && !levels.isEmpty()) {
+      for (AccessLevel level : levels) {
+        if (level.getPermission().equals(permission)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override

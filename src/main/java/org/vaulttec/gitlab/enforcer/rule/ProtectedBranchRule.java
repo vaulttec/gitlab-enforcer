@@ -20,6 +20,7 @@ package org.vaulttec.gitlab.enforcer.rule;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
+import org.vaulttec.gitlab.enforcer.client.model.Permission;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
@@ -78,17 +80,35 @@ public class ProtectedBranchRule extends AbstractRule {
   @Override
   public void handle(SystemEvent event) {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
-      LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPath());
+      Optional<ProtectedBranch> existingBranch = Optional.empty();
 
-      // If protected branch already exists then remove it first
-      // Otherwise we will end up with error 409 (Protected branch already exists)
+      // First check if the protected branch already exists
       List<ProtectedBranch> branches = client.getProtectedBranchesForProject(event.getId());
       if (branches != null) {
-        if (branches.stream().anyMatch(branch -> name.equals(branch.getName()))) {
-          client.unprotectBranchForProject(event.getId(), name);
+        existingBranch = branches.stream().filter(branch -> name.equals(branch.getName())).findFirst();
+
+        // If the existing branch has already the required access levels then we are finished
+        if (existingBranch.isPresent() && hasRequiredAccessLevels(existingBranch.get())) {
+          return;
         }
+      }
+      LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPath());
+
+      // An existing branch with different settings has to be removed - otherwise we
+      // will end up with error 409 (Protected branch already exists)
+      if (existingBranch.isPresent()) {
+        client.unprotectBranchForProject(event.getId(), name);
       }
       client.protectBranchForProject(event.getId(), name, settings);
     }
+  }
+
+  private boolean hasRequiredAccessLevels(ProtectedBranch branch) {
+    for (int i = 0; i < settings.length; i += 2) {
+      if (!branch.hasAccessLevel(settings[i], Permission.fromAccessLevel(settings[i + 1]))) {
+        return false;
+      }
+    }
+    return true;
   }
 }
