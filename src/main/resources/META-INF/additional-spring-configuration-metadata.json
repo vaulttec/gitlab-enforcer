@@ -15,6 +15,11 @@
     "description": "Fixed rate (in msec) the enforcer task is scheduled"
   },
   {
+    "name": "enforcer.auditEventRepositoryCapacity",
+    "type": "java.lang.Long",
+    "description": "Number of entries stored in cirular buffer of InMemoryAuditEventRepository"
+  },
+  {
     "name": "enforcer.system-hook-token",
     "type": "java.lang.String",
     "description": "Token used in GitLab System Hook"

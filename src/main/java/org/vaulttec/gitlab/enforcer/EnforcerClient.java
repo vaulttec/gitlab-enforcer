@@ -78,7 +78,7 @@ public class EnforcerClient {
     if (projects != null) {
       projects.forEach(project -> {
         SystemEvent event = new SystemEventBuilder().eventName(SystemEventName.PROJECT_CREATE).id(project.getId())
-            .name(project.getName()).path(project.getPath()).build();
+            .name(project.getName()).path(project.getPath()).pathWithNamespace(project.getPathWithNamespace()).build();
         enforce(execution, event);
       });
     }

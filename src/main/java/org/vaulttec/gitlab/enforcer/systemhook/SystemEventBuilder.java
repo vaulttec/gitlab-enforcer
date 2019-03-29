@@ -51,18 +51,6 @@ public class SystemEventBuilder {
   }
 
   public SystemEvent build() {
-    if (eventName == null) {
-      throw new IllegalStateException("eventName required");
-    }
-    if (name == null) {
-      throw new IllegalStateException("name required");
-    }
-    if (path == null) {
-      throw new IllegalStateException("path required");
-    }
-    if (id == null) {
-      throw new IllegalStateException("id required");
-    }
     SystemEvent event = new SystemEvent();
     event.setCreatedAt(new Date(System.currentTimeMillis()));
     event.setEventName(eventName);

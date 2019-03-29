@@ -5,6 +5,7 @@ management:
         include:
         - health
         - info
+        - auditevents
 
 proxy:
   host: ${HTTP_PROXY_HOST}

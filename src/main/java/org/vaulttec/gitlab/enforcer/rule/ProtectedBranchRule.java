@@ -17,6 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
@@ -39,19 +41,13 @@ public class ProtectedBranchRule extends AbstractRule {
   private String name;
   private boolean skipUserProjects;
   private String[] settings;
+  private String[] settingsInfo;
 
   @Override
   public String getInfo() {
     StringBuffer info = new StringBuffer("Enforce Protected Branch");
     if (name != null) {
-      info.append(" (").append("skipUserProject=").append(skipUserProjects).append(", name=").append(name).append(", ");
-      for (int i = 0; i < settings.length; i += 2) {
-        info.append(settings[i]).append("=").append(settings[i + 1]);
-        if (i < settings.length - 2) {
-          info.append(", ");
-        }
-      }
-      info.append(")");
+      info.append(" (").append(String.join(", ", settingsInfo)).append(")");
     }
     return info.toString();
   }
@@ -71,8 +67,16 @@ public class ProtectedBranchRule extends AbstractRule {
     if (StringUtils.hasText(skipUserProjectsText)) {
       this.skipUserProjects = Boolean.parseBoolean(skipUserProjectsText);
     }
-    this.settings = config.entrySet().stream().filter(e -> e.getKey() != "name" && e.getKey() != "skipUserProjects")
+    this.settings = config.entrySet().stream()
+        .filter(e -> !"name".equals(e.getKey()) && !"skipUserProjects".equals(e.getKey()))
         .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
+    List<String> settingsList = new ArrayList<>();
+    settingsList.add("skipUserProject=" + skipUserProjects);
+    settingsList.add("name=" + name);
+    for (int i = 0; i < settings.length; i += 2) {
+      settingsList.add(settings[i] + "=" + settings[i + 1]);
+    }
+    this.settingsInfo = settingsList.toArray(new String[settingsList.size()]);
   }
 
   @Override
@@ -91,14 +95,17 @@ public class ProtectedBranchRule extends AbstractRule {
           return;
         }
       }
-      LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPath());
+      LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPathWithNamespace());
 
       // An existing branch with different settings has to be removed - otherwise we
       // will end up with error 409 (Protected branch already exists)
       if (existingBranch.isPresent()) {
         client.unprotectBranchForProject(event.getId(), name);
       }
-      client.protectBranchForProject(event.getId(), name, settings);
+      if (client.protectBranchForProject(event.getId(), name, settings) != null) {
+        eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PROTECTED_BRANCH",
+            "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace(), "branch=" + name));
+      }
     }
   }
 

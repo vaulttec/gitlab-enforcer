@@ -19,6 +19,7 @@ package org.vaulttec.gitlab.enforcer.rule;
 
 import java.util.Map;
 
+import org.vaulttec.gitlab.enforcer.EnforcerEventPublisher;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
@@ -29,7 +30,7 @@ public interface Rule {
 
   boolean supports(SystemEvent event);
 
-  void init(Rule.Use use, GitLabClient client, Map<String, String> config);
+  void init(Rule.Use use, EnforcerEventPublisher eventPublisher, GitLabClient client, Map<String, String> config);
 
   void handle(EnforcerExecution execution, SystemEvent event);
 

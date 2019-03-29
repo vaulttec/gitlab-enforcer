@@ -38,16 +38,6 @@ public class SystemEvent {
   @JsonAlias({ "project_id", "group_id" })
   private String id;
 
-  public SystemEvent() {
-    super();
-  }
-
-  public SystemEvent(SystemEventName eventName, String id, String name) {
-    this.eventName = eventName;
-    this.id = id;
-    this.name = name;
-  }
-
   public Date getCreatedAt() {
     return createdAt;
   }

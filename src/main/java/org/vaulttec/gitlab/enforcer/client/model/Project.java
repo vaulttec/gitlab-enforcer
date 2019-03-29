@@ -20,11 +20,14 @@ package org.vaulttec.gitlab.enforcer.client.model;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Project {
   private String id;
   private String path;
+  @JsonProperty("path_with_namespace")
+  private String pathWithNamespace;
   private String name;
   private Namespace namespace;
 
@@ -52,6 +55,14 @@ public class Project {
 
   public void setPath(String path) {
     this.path = path;
+  }
+
+  public String getPathWithNamespace() {
+    return pathWithNamespace;
+  }
+
+  public void setPathWithNamespace(String pathWithNamespace) {
+    this.pathWithNamespace = pathWithNamespace;
   }
 
   public String getName() {

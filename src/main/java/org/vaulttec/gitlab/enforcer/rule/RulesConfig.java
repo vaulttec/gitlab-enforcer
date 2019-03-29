@@ -25,15 +25,18 @@ import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.vaulttec.gitlab.enforcer.EnforcerEventPublisher;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 
 @Configuration
 @ConfigurationProperties
 public class RulesConfig {
+  private final EnforcerEventPublisher eventPublisher;
   private final GitLabClient client;
   private final List<RuleConfig> rules; // same name as in config file!!!
 
-  RulesConfig(GitLabClient client) {
+  RulesConfig(EnforcerEventPublisher eventPublisher, GitLabClient client) {
+    this.eventPublisher = eventPublisher;
     this.client = client;
     this.rules = new ArrayList<>();
   }
@@ -47,7 +50,7 @@ public class RulesConfig {
     List<Rule> result = new ArrayList<>(rules.size());
     for (RuleConfig config : rules) {
       Rule rule = config.getRule().newInstance();
-      rule.init(config.getUse(), client, config.getConfig());
+      rule.init(config.getUse(), eventPublisher, client, config.getConfig());
       result.add(rule);
     }
     return result;

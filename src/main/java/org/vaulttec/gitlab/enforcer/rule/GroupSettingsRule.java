@@ -17,11 +17,14 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
@@ -31,19 +34,13 @@ public class GroupSettingsRule extends AbstractRule {
   private static final Logger LOG = LoggerFactory.getLogger(GroupSettingsRule.class);
 
   private String[] settings;
+  private String[] settingsInfo;
 
   @Override
   public String getInfo() {
     StringBuffer info = new StringBuffer("Enforce Group Settings");
     if (settings != null) {
-      info.append(" (");
-      for (int i = 0; i < settings.length; i += 2) {
-        info.append(settings[i]).append("=").append(settings[i + 1]);
-        if (i < settings.length - 2) {
-          info.append(", ");
-        }
-      }
-      info.append(")");
+      info.append(" (").append(String.join(", ", settingsInfo)).append(")");
     }
     return info.toString();
   }
@@ -57,11 +54,19 @@ public class GroupSettingsRule extends AbstractRule {
   public void doInit(Map<String, String> config) {
     this.settings = config.entrySet().stream().flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream())
         .toArray(size -> new String[size]);
+    List<String> settingsList = new ArrayList<>();
+    for (int i = 0; i < settings.length; i += 2) {
+      settingsList.add(settings[i] + "=" + settings[i + 1]);
+    }
+    this.settingsInfo = settingsList.toArray(new String[settingsList.size()]);
   }
 
   @Override
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
     LOG.info("Enforcing settings in group '{}'", event.getPath());
-    client.updateGroup(event.getId(), settings);
+    if (client.updateGroup(event.getId(), settings) != null) {
+      eventPublisher.publishEvent(EnforcerEvents.createGroupEvent(execution, "GROUP_SETTINGS",
+          "groupId=" + event.getId(), "groupPath=" + event.getPath()));
+    }
   }
 }

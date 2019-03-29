@@ -18,29 +18,40 @@
 package org.vaulttec.gitlab.enforcer.rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.actuate.audit.AuditEvent;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.vaulttec.gitlab.enforcer.EnforcerEventPublisher;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
-import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
+import org.vaulttec.gitlab.enforcer.client.model.Group;
+import org.vaulttec.gitlab.enforcer.systemhook.SystemEventBuilder;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
 public class GroupSettingsRuleTest {
 
   private static final String GROUP_ID = "42";
-  private static final String GROUP_NAME = "group42";
+  private static final String[] GROUP_SETTINGS = new String[] { "membership_lock", "true", "share_with_group_lock",
+      "true" };
 
+  private AuditEventRepository eventRepository;
+  private EnforcerEventPublisher eventPublisher;
   private GitLabClient client;
   private Map<String, String> config;
 
   @Before
   public void setUp() throws Exception {
+    eventRepository = mock(AuditEventRepository.class);
+    eventPublisher = new EnforcerEventPublisher(eventRepository);
     client = mock(GitLabClient.class);
     config = new LinkedHashMap<>();
     config.put("membership_lock", "true");
@@ -50,7 +61,7 @@ public class GroupSettingsRuleTest {
   @Test
   public void testRuleInfo() {
     Rule rule = new GroupSettingsRule();
-    rule.init(null, null, config);
+    rule.init(null, null, null, config);
 
     assertThat(rule.getInfo()).endsWith(" (membership_lock=true, share_with_group_lock=true)");
   }
@@ -58,17 +69,21 @@ public class GroupSettingsRuleTest {
   @Test
   public void testSupports() {
     Rule rule = new GroupSettingsRule();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME))).isTrue();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.PROJECT_CREATE, null, null))).isFalse();
-    assertThat(rule.supports(new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
+    assertThat(rule.supports(new SystemEventBuilder().eventName(SystemEventName.PROJECT_CREATE).build())).isFalse();
+    assertThat(rule.supports(new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).build())).isTrue();
+    assertThat(rule.supports(new SystemEventBuilder().eventName(SystemEventName.OTHER).build())).isFalse();
   }
 
   @Test
   public void testHandle() {
-    Rule rule = new GroupSettingsRule();
-    rule.init(null, client, config);
+    when(client.updateGroup(GROUP_ID, GROUP_SETTINGS)).thenReturn(new Group());
 
-    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME));
-    verify(client).updateGroup(GROUP_ID, "membership_lock", "true", "share_with_group_lock", "true");
+    Rule rule = new GroupSettingsRule();
+    rule.init(null, eventPublisher, client, config);
+
+    rule.handle(EnforcerExecution.HOOK,
+        new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(GROUP_ID).build());
+    verify(client).updateGroup(GROUP_ID, GROUP_SETTINGS);
+    verify(eventRepository).add(any(AuditEvent.class));
   }
 }

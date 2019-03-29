@@ -19,14 +19,26 @@ package org.vaulttec.gitlab.enforcer;
 
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.springframework.boot.actuate.audit.InMemoryAuditEventRepository;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "enforcer")
 public class EnforcerConfig {
+  private int auditEventRepositoryCapacity;
   @NotEmpty
   private String systemHookToken;
+
+  public int getAuditEventRepositoryCapacity() {
+    return auditEventRepositoryCapacity;
+  }
+
+  public void setAuditEventRepositoryCapacity(int auditEventRepositoryCapacity) {
+    this.auditEventRepositoryCapacity = auditEventRepositoryCapacity;
+  }
 
   public String getSystemHookToken() {
     return systemHookToken;
@@ -34,5 +46,10 @@ public class EnforcerConfig {
 
   public void setSystemHookToken(String systemHookToken) {
     this.systemHookToken = systemHookToken;
+  }
+
+  @Bean
+  public AuditEventRepository auditEventRepository() throws Exception {
+    return new InMemoryAuditEventRepository(getAuditEventRepositoryCapacity());
   }
 }
