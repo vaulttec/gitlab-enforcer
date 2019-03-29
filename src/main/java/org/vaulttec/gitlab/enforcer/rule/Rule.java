@@ -27,11 +27,11 @@ public interface Rule {
 
   String getInfo();
 
+  boolean supports(SystemEvent event);
+
   void init(Rule.Use use, GitLabClient client, Map<String, String> config);
 
-  boolean supports(EnforcerExecution execution, SystemEvent event);
-
-  void handle(SystemEvent event);
+  void handle(EnforcerExecution execution, SystemEvent event);
 
   public enum Use {
     ONCE, ALWAYS;

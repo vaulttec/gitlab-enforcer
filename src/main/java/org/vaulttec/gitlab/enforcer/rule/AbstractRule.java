@@ -29,23 +29,28 @@ public abstract class AbstractRule implements Rule {
   protected GitLabClient client;
 
   @Override
-  public void init(Use use, GitLabClient client, Map<String, String> config) {
+  public final void init(Use use, GitLabClient client, Map<String, String> config) {
     this.use = use;
     this.client = client;
+    doInit(config);
   }
 
+  protected abstract void doInit(Map<String, String> config);
+
   @Override
-  public boolean supports(EnforcerExecution execution, SystemEvent event) {
+  public final void handle(EnforcerExecution execution, SystemEvent event) {
     switch (execution) {
     case COMMAND:
     case HOOK:
-      return true;
+      doHandle(execution, event);
+      break;
     case SCHEDULED:
       if (use == Use.ALWAYS) {
-        return true;
+        doHandle(execution, event);
       }
       break;
     }
-    return false;
   }
+
+  protected abstract void doHandle(EnforcerExecution execution, SystemEvent event);
 }

@@ -23,7 +23,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
-import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
@@ -50,19 +49,18 @@ public class GroupSettingsRule extends AbstractRule {
   }
 
   @Override
-  public void init(Use use, GitLabClient client, Map<String, String> config) {
-    super.init(use, client, config);
+  public boolean supports(SystemEvent event) {
+    return SystemEventName.GROUP_CREATE.equals(event.getEventName());
+  }
+
+  @Override
+  public void doInit(Map<String, String> config) {
     this.settings = config.entrySet().stream().flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream())
         .toArray(size -> new String[size]);
   }
 
   @Override
-  public boolean supports(EnforcerExecution execution, SystemEvent event) {
-    return super.supports(execution, event) && SystemEventName.GROUP_CREATE.equals(event.getEventName());
-  }
-
-  @Override
-  public void handle(SystemEvent event) {
+  public void doHandle(EnforcerExecution execution, SystemEvent event) {
     LOG.info("Enforcing settings in group '{}'", event.getPath());
     client.updateGroup(event.getId(), settings);
   }

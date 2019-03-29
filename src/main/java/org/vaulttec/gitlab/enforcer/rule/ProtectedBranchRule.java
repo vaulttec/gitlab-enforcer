@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
-import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
@@ -58,8 +57,12 @@ public class ProtectedBranchRule extends AbstractRule {
   }
 
   @Override
-  public void init(Use use, GitLabClient client, Map<String, String> config) {
-    super.init(use, client, config);
+  public boolean supports(SystemEvent event) {
+    return SystemEventName.PROJECT_CREATE.equals(event.getEventName());
+  }
+
+  @Override
+  public void doInit(Map<String, String> config) {
     this.name = config.get("name");
     if (!StringUtils.hasText(this.name)) {
       throw new IllegalStateException("Missing branch name");
@@ -73,12 +76,7 @@ public class ProtectedBranchRule extends AbstractRule {
   }
 
   @Override
-  public boolean supports(EnforcerExecution execution, SystemEvent event) {
-    return super.supports(execution, event) && SystemEventName.PROJECT_CREATE.equals(event.getEventName());
-  }
-
-  @Override
-  public void handle(SystemEvent event) {
+  public void doHandle(EnforcerExecution execution, SystemEvent event) {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
       Optional<ProtectedBranch> existingBranch = Optional.empty();
 
@@ -87,7 +85,8 @@ public class ProtectedBranchRule extends AbstractRule {
       if (branches != null) {
         existingBranch = branches.stream().filter(branch -> name.equals(branch.getName())).findFirst();
 
-        // If the existing branch has already the required access levels then we are finished
+        // If the existing branch has already the required access levels then we are
+        // finished
         if (existingBranch.isPresent() && hasRequiredAccessLevels(existingBranch.get())) {
           return;
         }

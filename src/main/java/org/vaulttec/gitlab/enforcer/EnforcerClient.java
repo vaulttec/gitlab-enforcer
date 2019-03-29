@@ -87,8 +87,8 @@ public class EnforcerClient {
 
   public void enforce(EnforcerExecution execution, SystemEvent event) {
     rules.forEach(rule -> {
-      if (rule.supports(execution, event)) {
-        rule.handle(event);
+      if (rule.supports(event)) {
+        rule.handle(execution, event);
       }
     });
   }

@@ -58,12 +58,9 @@ public class GroupSettingsRuleTest {
   @Test
   public void testSupports() {
     Rule rule = new GroupSettingsRule();
-    assertThat(
-        rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME)))
-            .isTrue();
-    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, null, null)))
-        .isFalse();
-    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
+    assertThat(rule.supports(new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME))).isTrue();
+    assertThat(rule.supports(new SystemEvent(SystemEventName.PROJECT_CREATE, null, null))).isFalse();
+    assertThat(rule.supports(new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
   }
 
   @Test
@@ -71,7 +68,7 @@ public class GroupSettingsRuleTest {
     Rule rule = new GroupSettingsRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.GROUP_CREATE, GROUP_ID, GROUP_NAME));
     verify(client).updateGroup(GROUP_ID, "membership_lock", "true", "share_with_group_lock", "true");
   }
 }

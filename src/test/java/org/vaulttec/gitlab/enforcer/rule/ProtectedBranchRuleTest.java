@@ -73,11 +73,9 @@ public class ProtectedBranchRuleTest {
   @Test
   public void testSupports() {
     Rule rule = new ProtectedBranchRule();
-    assertThat(rule.supports(EnforcerExecution.HOOK,
-        new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME))).isTrue();
-    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.GROUP_CREATE, null, null)))
-        .isFalse();
-    assertThat(rule.supports(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
+    assertThat(rule.supports(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME))).isTrue();
+    assertThat(rule.supports(new SystemEvent(SystemEventName.GROUP_CREATE, null, null))).isFalse();
+    assertThat(rule.supports(new SystemEvent(SystemEventName.OTHER, null, null))).isFalse();
   }
 
   @Test
@@ -88,7 +86,7 @@ public class ProtectedBranchRuleTest {
     Rule rule = new ProtectedBranchRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
     verify(client, never()).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
     verify(client).protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS);
@@ -104,7 +102,7 @@ public class ProtectedBranchRuleTest {
     Rule rule = new ProtectedBranchRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
     verify(client, never()).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
     verify(client, never()).protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS);
@@ -119,7 +117,7 @@ public class ProtectedBranchRuleTest {
     Rule rule = new ProtectedBranchRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
     verify(client).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
     verify(client).protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS);
@@ -134,7 +132,7 @@ public class ProtectedBranchRuleTest {
     Rule rule = new ProtectedBranchRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
     verify(client).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
     verify(client).protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS);
@@ -149,7 +147,7 @@ public class ProtectedBranchRuleTest {
     Rule rule = new ProtectedBranchRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProject(PROJECT_ID);
     verify(client, never()).getProtectedBranchesForProject(PROJECT_ID);
     verify(client, never()).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
@@ -165,7 +163,7 @@ public class ProtectedBranchRuleTest {
     Rule rule = new ProtectedBranchRule();
     rule.init(null, client, config);
 
-    rule.handle(new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
+    rule.handle(EnforcerExecution.HOOK, new SystemEvent(SystemEventName.PROJECT_CREATE, PROJECT_ID, PROJECT_NAME));
     verify(client).getProject(PROJECT_ID);
     verify(client).getProtectedBranchesForProject(PROJECT_ID);
     verify(client, never()).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
