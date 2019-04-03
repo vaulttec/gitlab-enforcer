@@ -16,7 +16,9 @@ proxy:
   port: 3128
 
 enforcer:
-  rate: 300000  # 5 min
+  scheduler:
+    enabled: true
+    rate: 300000  # 5 min
   auditEventRepositoryCapacity: 1000
   systemHookToken:
 

@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
@@ -59,13 +58,8 @@ public class EnforcerClient {
     return lastEnforceTime;
   }
 
-  @Scheduled(fixedRateString = "${enforcer.rate}")
-  public void enforceScheduled() {
-    enforce(EnforcerExecution.SCHEDULED);
-  }
-
   public void enforce(EnforcerExecution execution) {
-    LOG.info("Enforcing rules for all GitLab groups and projects");
+    LOG.info("Enforcing rules for all GitLab groups and projects ({})", execution);
     List<Group> groups = client.getGroups(null);
     if (groups != null) {
       groups.forEach(group -> {

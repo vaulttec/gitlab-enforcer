@@ -37,7 +37,9 @@ rules:
 All the rules marked with the configuration property `use: always` are automatically re-enforced at a specified interval (msec)
 ```
 enforcer:
-  rate: 300000  # 5 min
+  scheduler:
+    enabled: true
+    rate: 300000  # 5 min
 ```
  
 

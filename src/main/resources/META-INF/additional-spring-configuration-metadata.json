@@ -10,7 +10,12 @@
     "description": "Internet proxy port"
   },
   {
-    "name": "enforcer.rate",
+    "name": "enforcer.scheduler.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enable scheduling of enforcer task"
+  },
+  {
+    "name": "enforcer.scheduler.rate",
     "type": "java.lang.Long",
     "description": "Fixed rate (in msec) the enforcer task is scheduled"
   },

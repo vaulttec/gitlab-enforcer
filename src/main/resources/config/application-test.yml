@@ -3,6 +3,10 @@ logging:
     org.springframework: info
     org.vaulttec: debug
 
+enforcer:
+  scheduler:
+    enabled: false
+
 gitlab:
   serverUrl: http://torstens-macbook-pro.local:8083
   personalAccessToken: d9FPuic1fFd-gzNvpmw4
