@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
+import org.vaulttec.gitlab.enforcer.client.model.AccessLevel;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
@@ -40,6 +41,7 @@ public class ProtectedBranchRule extends AbstractRule {
 
   private String name;
   private boolean skipUserProjects;
+  private boolean keepStricterAccessLevel;
   private String[] settings;
   private String[] settingsInfo;
 
@@ -67,11 +69,17 @@ public class ProtectedBranchRule extends AbstractRule {
     if (StringUtils.hasText(skipUserProjectsText)) {
       this.skipUserProjects = Boolean.parseBoolean(skipUserProjectsText);
     }
+    String keepStricterAccessLevelText = config.get("keepStricterAccessLevel");
+    if (StringUtils.hasText(keepStricterAccessLevelText)) {
+      this.keepStricterAccessLevel = Boolean.parseBoolean(keepStricterAccessLevelText);
+    }
     this.settings = config.entrySet().stream()
-        .filter(e -> !"name".equals(e.getKey()) && !"skipUserProjects".equals(e.getKey()))
+        .filter(e -> !"name".equals(e.getKey()) && !"skipUserProjects".equals(e.getKey())
+            && !"keepStricterAccessLevel".equals(e.getKey()))
         .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
     List<String> settingsList = new ArrayList<>();
     settingsList.add("skipUserProject=" + skipUserProjects);
+    settingsList.add("keepStricterAccessLevel=" + keepStricterAccessLevel);
     settingsList.add("name=" + name);
     for (int i = 0; i < settings.length; i += 2) {
       settingsList.add(settings[i] + "=" + settings[i + 1]);
@@ -82,17 +90,23 @@ public class ProtectedBranchRule extends AbstractRule {
   @Override
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
+      List<String> enforcedSettings = Arrays.asList(settings);
       Optional<ProtectedBranch> existingBranch = Optional.empty();
 
       // First check if the protected branch already exists
       List<ProtectedBranch> branches = client.getProtectedBranchesForProject(event.getId());
       if (branches != null) {
         existingBranch = branches.stream().filter(branch -> name.equals(branch.getName())).findFirst();
-
-        // If the existing branch has already the required access levels then we are
-        // finished
-        if (existingBranch.isPresent() && hasRequiredAccessLevels(existingBranch.get())) {
-          return;
+        if (existingBranch.isPresent()) {
+          // If the existing branch has already the required access levels then we are
+          // set
+          if (hasRequiredAccessLevels(existingBranch.get())) {
+            return;
+          }
+          // If the existing branch has stricter access levels then we are set as well
+          if (keepStricterAccessLevel && hasStricterSettings(existingBranch.get(), enforcedSettings)) {
+            return;
+          }
         }
       }
       LOG.info("Enforcing protected branch '{}' in project '{}'", name, event.getPathWithNamespace());
@@ -102,7 +116,7 @@ public class ProtectedBranchRule extends AbstractRule {
       if (existingBranch.isPresent()) {
         client.unprotectBranchForProject(event.getId(), name);
       }
-      if (client.protectBranchForProject(event.getId(), name, settings) != null) {
+      if (client.protectBranchForProject(event.getId(), name, (String[]) enforcedSettings.toArray()) != null) {
         eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PROTECTED_BRANCH",
             "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace(), "branch=" + name));
       }
@@ -116,5 +130,25 @@ public class ProtectedBranchRule extends AbstractRule {
       }
     }
     return true;
+  }
+
+  private boolean hasStricterSettings(ProtectedBranch branch, List<String> enforcedSettings) {
+    boolean hasStricterSettings = true;
+    for (int i = 0; i < enforcedSettings.size(); i += 2) {
+      if (!"unprotect_access_level".equals(enforcedSettings.get(i))) {
+        List<AccessLevel> levels = branch.getAccessLevelsByName(enforcedSettings.get(i));
+        Permission permission = Permission.fromAccessLevel(enforcedSettings.get(i + 1));
+        if (levels != null && !levels.isEmpty()) {
+          for (AccessLevel level : levels) {
+            if (level.getPermission().isStricter(permission)) {
+              enforcedSettings.set(i + 1, level.getPermission().getAccessLevel());
+            } else {
+              hasStricterSettings = false;
+            }
+          }
+        }
+      }
+    }
+    return hasStricterSettings;
   }
 }

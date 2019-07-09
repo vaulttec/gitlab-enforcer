@@ -63,4 +63,8 @@ public enum Permission {
     }
     return Integer.parseInt(this.getAccessLevel()) - Integer.parseInt(other.getAccessLevel());
   }
+
+  public boolean isStricter(Permission other) {
+    return !other.equals(NO) && (this.equals(NO) || compareAccessLevel(other) > 0);
+  }
 }
