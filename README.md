@@ -22,13 +22,15 @@ rules:
     use: always
     config:
       skipUserProjects: true
+      keepStricterAccessLevel: true
       name: master
       push_access_level: 30
-      merge_access_level: 40
+      merge_access_level: 30
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     use: always
     config:
       skipUserProjects: true
+      keepStricterAccessLevel: true
       name: release/*
       push_access_level: 40
       merge_access_level: 40
