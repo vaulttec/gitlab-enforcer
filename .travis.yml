@@ -17,9 +17,11 @@ cache:
     - '$HOME/.m2/repository'
 
 after_success:
+  - export APP_NAME=gitlab-enforcer
+  - export IMAGE_NAME=$DOCKER_USERNAME/$APP_NAME
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
   - export IMAGE_NAME=$DOCKER_USERNAME/gitlab-enforcer
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker build -t $IMAGE_NAME:$COMMIT .
+  - docker build -t $IMAGE_NAME:$COMMIT --build-arg JAR_FILE=target/$APP_NAME.jar .
   - docker tag $IMAGE_NAME:$COMMIT $IMAGE_NAME:$TAG
   - docker push $IMAGE_NAME
