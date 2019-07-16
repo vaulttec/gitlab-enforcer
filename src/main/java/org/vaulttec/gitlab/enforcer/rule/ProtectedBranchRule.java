@@ -22,14 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
-import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.AccessLevel;
+import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
@@ -90,7 +91,9 @@ public class ProtectedBranchRule extends AbstractRule {
   @Override
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
-      List<String> enforcedSettings = Arrays.asList(settings);
+      // Create a mutable list of the initial protected branch configuration
+      // This list will be modified in hasStricterSettings()!!!
+      List<String> enforcedSettings = Arrays.stream(settings).collect(Collectors.toList());
       Optional<ProtectedBranch> existingBranch = Optional.empty();
 
       // First check if the protected branch already exists
@@ -116,7 +119,8 @@ public class ProtectedBranchRule extends AbstractRule {
       if (existingBranch.isPresent()) {
         client.unprotectBranchForProject(event.getId(), name);
       }
-      if (client.protectBranchForProject(event.getId(), name, (String[]) enforcedSettings.toArray()) != null) {
+      if (client.protectBranchForProject(event.getId(), name,
+          enforcedSettings.stream().toArray(String[]::new)) != null) {
         eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PROTECTED_BRANCH",
             "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace(), "branch=" + name));
       }
