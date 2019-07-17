@@ -25,15 +25,17 @@ import org.junit.Test;
 public class PermissionTest {
 
   @Test
-  public void test() {
-    assertTrue(Permission.ADMIN.isStricter(Permission.MAINTAINER));
-    assertTrue(Permission.MAINTAINER.isStricter(Permission.DEVELOPER));
-    assertTrue(Permission.DEVELOPER.isStricter(Permission.GUEST));
-    assertTrue(Permission.NO.isStricter(Permission.MAINTAINER));
-    assertTrue(Permission.NO.isStricter(Permission.DEVELOPER));
+  public void testIsStricterOrSame() {
+    assertTrue(Permission.ADMIN.isStricterOrSame(Permission.MAINTAINER));
+    assertTrue(Permission.MAINTAINER.isStricterOrSame(Permission.DEVELOPER));
+    assertTrue(Permission.DEVELOPER.isStricterOrSame(Permission.GUEST));
+    assertTrue(Permission.NO.isStricterOrSame(Permission.MAINTAINER));
+    assertTrue(Permission.NO.isStricterOrSame(Permission.DEVELOPER));
+    assertTrue(Permission.MAINTAINER.isStricterOrSame(Permission.MAINTAINER));
+    assertTrue(Permission.NO.isStricterOrSame(Permission.NO));
 
-    assertFalse(Permission.MAINTAINER.isStricter(Permission.MAINTAINER));
-    assertFalse(Permission.NO.isStricter(Permission.NO));
-    assertFalse(Permission.DEVELOPER.isStricter(Permission.NO));
+    assertFalse(Permission.DEVELOPER.isStricterOrSame(Permission.NO));
+    assertFalse(Permission.DEVELOPER.isStricterOrSame(Permission.MAINTAINER));
+    assertFalse(Permission.MAINTAINER.isStricterOrSame(Permission.NO));
   }
 }

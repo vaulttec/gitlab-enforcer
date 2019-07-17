@@ -141,10 +141,10 @@ public class ProtectedBranchRule extends AbstractRule {
     for (int i = 0; i < enforcedSettings.size(); i += 2) {
       if (!"unprotect_access_level".equals(enforcedSettings.get(i))) {
         List<AccessLevel> levels = branch.getAccessLevelsByName(enforcedSettings.get(i));
-        Permission permission = Permission.fromAccessLevel(enforcedSettings.get(i + 1));
+        Permission enforcedPermission = Permission.fromAccessLevel(enforcedSettings.get(i + 1));
         if (levels != null && !levels.isEmpty()) {
           for (AccessLevel level : levels) {
-            if (level.getPermission().isStricter(permission)) {
+            if (level.getPermission().isStricterOrSame(enforcedPermission)) {
               enforcedSettings.set(i + 1, level.getPermission().getAccessLevel());
             } else {
               hasStricterSettings = false;

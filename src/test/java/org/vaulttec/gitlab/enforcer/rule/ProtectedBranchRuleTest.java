@@ -49,11 +49,11 @@ public class ProtectedBranchRuleTest {
   private static final String BRANCH_NAME = "master";
   private static final String[] BRANCH_SETTINGS = new String[] { "push_access_level", "30", "merge_access_level", "30",
       "unprotect_access_level", "60" };
-  private static final String[] STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "0",
-      "merge_access_level", "40", "unprotect_access_level", "60" };
-  private static final String[] SOME_STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "0",
+  private static final String[] STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "40",
       "merge_access_level", "30", "unprotect_access_level", "60" };
-  private static final String[] MERGED_STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "0",
+  private static final String[] SOME_STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "20",
+      "merge_access_level", "30", "unprotect_access_level", "60" };
+  private static final String[] MERGED_STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "30",
       "merge_access_level", "30", "unprotect_access_level", "60" };
 
   private AuditEventRepository eventRepository;
