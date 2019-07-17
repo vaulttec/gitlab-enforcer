@@ -1,4 +1,4 @@
-GitLab Enforcer
+GitLab Enforcer  [![Build Status](https://travis-ci.org/vaulttec/gitlab-enforcer.svg?branch=master)](https://travis-ci.org/vaulttec/gitlab-enforcer) [![Docker Image](https://img.shields.io/docker/pulls/tjuerge/gitlab-enforcer.svg)](https://hub.docker.com/r/tjuerge/gitlab-enforcer)
 ===============
 
 Spring Boot application with [GitLab System Hook](https://docs.gitlab.com/ee/system_hooks/system_hooks.html)
