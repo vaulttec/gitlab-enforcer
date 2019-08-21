@@ -1,12 +1,20 @@
-FROM openjdk:8-jdk-alpine
-RUN adduser -S -u 1000 springboot && \
-    mkdir -p /app/logs && \
-    chown -R springboot /app
-USER springboot
-ARG JAR_FILE
-COPY ${JAR_FILE} /app/app.jar
-WORKDIR /app
-VOLUME /tmp /app/logs
+FROM openjdk:11-slim
+
 EXPOSE 8080
-ENV JAVA_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Dlogging.path=/app/logs -jar /app/app.jar
+
+ENV APP_HOME /app
+ENV JAVA_OPTS=""
+
+USER springboot
+RUN adduser -S -u 1000 springboot && \
+    mkdir -p $APP_HOME/logs && \
+    chown -R springboot $APP_HOME
+
+WORKDIR $APP_HOME
+
+ARG JAR_FILE
+COPY ${JAR_FILE} $APP_HOME/app.jar
+
+VOLUME /tmp $APP_HOME/config $APP_HOME/logs
+
+ENTRYPOINT [ "sh", "-c",  "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Dlogging.path=$APP_HOME/logs -jar app.jar" ]
