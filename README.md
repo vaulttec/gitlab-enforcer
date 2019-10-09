@@ -22,8 +22,8 @@ rules:
       membership_lock: true
       share_with_group_lock: true
       auto_devops_enabled: false
-      project_creation_level: 40
-      subgroup_creation_level: 50
+      project_creation_level: maintainer
+      subgroup_creation_level: owner
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     use: always
     config:
