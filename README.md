@@ -7,6 +7,9 @@ listener which enforces certain configuration rules on newly created GitLab grou
  * Group
    - [Share with group lock](https://docs.gitlab.com/ce/user/group/index.html#share-with-group-lock)
    - [Member Lock](https://docs.gitlab.com/ee/user/group/index.html#member-lock-starter)
+   - [Auto DevOps](https://docs.gitlab.com/ee/topics/autodevops/)
+   - [Default project-creation level](https://docs.gitlab.com/ee/user/group/index.html#default-project-creation-level)
+   - [Default subgroup-creation level](https://docs.gitlab.com/ee/user/group/subgroups/#creating-a-subgroup)
  * Project
    - [Protected Branches](https://docs.gitlab.com/ee/user/project/protected_branches.html)
 
@@ -18,6 +21,9 @@ rules:
     config:
       membership_lock: true
       share_with_group_lock: true
+      auto_devops_enabled: false
+      project_creation_level: 40
+      subgroup_creation_level: 50
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     use: always
     config:
