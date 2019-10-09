@@ -12,6 +12,8 @@ proxy:
   port: ${HTTP_PROXY_PORT}
 
 enforcer:
+  scheduler:
+    rate: ${ENFORCER_SCHEDULER_RATE}
   systemHookToken: ${ENFORCER_SYSTEM_HOOK_TOKEN}
 
 gitlab:
