@@ -28,9 +28,9 @@
 			<file>${AUDIT_LOG_FILE}</file>
 			<rollingPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-				<fileNamePattern>${AUDIT_LOG_FILE}.%d{yyyy-MM-dd}.%i.gz
+				<fileNamePattern>${AUDIT_LOG_FILE}.%d{yyyy-MM}.%i.gz
 				</fileNamePattern>
-				<maxFileSize>${AUDIT_LOG_FILE_MAX_SIZE:-100MB}</maxFileSize>
+				<maxFileSize>${AUDIT_LOG_FILE_MAX_SIZE:-500MB}</maxFileSize>
 				<maxHistory>${AUDIT_LOG_FILE_MAX_HISTORY:-0}</maxHistory>
 			</rollingPolicy>
 		</appender>
