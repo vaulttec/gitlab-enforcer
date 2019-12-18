@@ -82,7 +82,7 @@ public class ProtectedBranchRuleTest {
     rule.init(null, null, client, config);
 
     assertThat(rule.getInfo()).endsWith(
-        " (skipUserProject=true, keepStricterAccessLevel=true, name=master, push_access_level=30, merge_access_level=30, unprotect_access_level=60)");
+        " (skipUserProjects=true, keepStricterAccessLevel=true, name=master, push_access_level=30, merge_access_level=30, unprotect_access_level=60)");
   }
 
   @Test

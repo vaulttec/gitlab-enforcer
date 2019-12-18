@@ -49,7 +49,7 @@ public class ProtectedBranchRule extends AbstractRule {
   @Override
   public String getInfo() {
     StringBuffer info = new StringBuffer("Enforce Protected Branch");
-    if (name != null) {
+    if (settingsInfo != null) {
       info.append(" (").append(String.join(", ", settingsInfo)).append(")");
     }
     return info.toString();
@@ -79,7 +79,7 @@ public class ProtectedBranchRule extends AbstractRule {
             && !"keepStricterAccessLevel".equals(e.getKey()))
         .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
     List<String> settingsList = new ArrayList<>();
-    settingsList.add("skipUserProject=" + skipUserProjects);
+    settingsList.add("skipUserProjects=" + skipUserProjects);
     settingsList.add("keepStricterAccessLevel=" + keepStricterAccessLevel);
     settingsList.add("name=" + name);
     for (int i = 0; i < settings.length; i += 2) {
