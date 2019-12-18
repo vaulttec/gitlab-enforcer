@@ -82,15 +82,36 @@ public class PushRulesRuleTest {
 
   @Test
   public void testHandle() {
-    when(client.updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS)).thenReturn(new PushRules());
+    PushRules existingRules = new PushRules();
+    existingRules.setMemberCheck(false);
+    when(client.getPushRules(PROJECT_ID)).thenReturn(existingRules);
+    when(client.updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS)).thenReturn(existingRules);
 
     Rule rule = new PushRulesRule();
     rule.init(null, eventPublisher, client, config);
 
     rule.handle(EnforcerExecution.HOOK,
         new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(PROJECT_ID).build());
+    verify(client).getPushRules(PROJECT_ID);
     verify(client).updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS);
     verify(eventRepository).add(any(AuditEvent.class));
+  }
+
+  @Test
+  public void testHandleSkipActiveSettings() {
+    PushRules existingRules = new PushRules();
+    existingRules.setMemberCheck(true);
+    existingRules.setPreventSecrets(true);
+    when(client.getPushRules(PROJECT_ID)).thenReturn(existingRules);
+
+    Rule rule = new PushRulesRule();
+    rule.init(null, eventPublisher, client, config);
+
+    rule.handle(EnforcerExecution.HOOK,
+        new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(PROJECT_ID).build());
+    verify(client).getPushRules(PROJECT_ID);
+    verify(client, never()).updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS);
+    verify(eventRepository, never()).add(any(AuditEvent.class));
   }
 
   @Test

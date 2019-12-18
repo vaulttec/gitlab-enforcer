@@ -240,6 +240,16 @@ public class GitLabClient extends AbstractRestClient {
     return makeReadListApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_NAMESPACES, uriVariables);
   }
 
+  public PushRules getPushRules(String projectId) {
+    if (!StringUtils.hasText(projectId)) {
+      throw new IllegalStateException("GitLab project ID required");
+    }
+    LOG.debug("Retrieving push rules for project '{}'", projectId);
+    String apiCall = "/projects/{projectId}/push_rule";
+    Map<String, String> uriVariables = createUriVariables("projectId", projectId);
+    return makeReadApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_PUSH_RULES, uriVariables);
+  }
+
   public PushRules updatePushRules(String projectId, String... settings) {
     if (!StringUtils.hasText(projectId)) {
       throw new IllegalStateException("GitLab project ID required");

@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
+import org.vaulttec.gitlab.enforcer.client.model.PushRules;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
@@ -59,8 +60,7 @@ public class PushRulesRule extends AbstractRule {
     if (StringUtils.hasText(skipUserProjectsText)) {
       this.skipUserProjects = Boolean.parseBoolean(skipUserProjectsText);
     }
-    this.settings = config.entrySet().stream()
-        .filter(e -> !"skipUserProjects".equals(e.getKey()))
+    this.settings = config.entrySet().stream().filter(e -> !"skipUserProjects".equals(e.getKey()))
         .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
     List<String> settingsList = new ArrayList<>();
     settingsList.add("skipUserProjects=" + skipUserProjects);
@@ -73,10 +73,13 @@ public class PushRulesRule extends AbstractRule {
   @Override
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
-      LOG.info("Enforcing push rules in project '{}'", event.getPathWithNamespace());
-      if (client.updatePushRules(event.getId(), settings) != null) {
-        eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PUSH_RULES",
-            "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace()));
+      PushRules rules = client.getPushRules(event.getId());
+      if (!rules.isActiveSettings(settings)) {
+        LOG.info("Enforcing push rules in project '{}'", event.getPathWithNamespace());
+        if (client.updatePushRules(event.getId(), settings) != null) {
+          eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PUSH_RULES",
+              "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace()));
+        }
       }
     }
   }

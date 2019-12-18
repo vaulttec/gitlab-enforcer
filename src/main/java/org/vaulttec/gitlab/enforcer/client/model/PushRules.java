@@ -152,29 +152,38 @@ public class PushRules {
     this.rejectUnsignedCommits = rejectUnsignedCommits;
   }
 
+  public boolean isActiveSettings(String[] settings) {
+    for (int i = 0; i < settings.length; i += 2) {
+      if (!isRuleActive(settings[i], settings[i + 1])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public boolean isRuleActive(String ruleName, String value) {
     switch (ruleName) {
-    case "commit_message_regex" :
+    case "commit_message_regex":
       return commitMessageRegex.equals(value);
-    case "commit_message_nagative_regex" :
+    case "commit_message_nagative_regex":
       return commitMessageNegativeRegex.equals(value);
-    case "branch_name_regex" :
+    case "branch_name_regex":
       return branchNameRegex.equals(value);
-    case "denyDeleteTag" :
+    case "denyDeleteTag":
       return Boolean.toString(denyDeleteTag).equals(value);
-    case "member_check" :
+    case "member_check":
       return Boolean.toString(memberCheck).equals(value);
-    case "prevent_secrets" :
+    case "prevent_secrets":
       return Boolean.toString(preventSecrets).equals(value);
-    case "author_email_regex" :
+    case "author_email_regex":
       return authorEmailRegex.equals(value);
-    case "file_name_regex" :
+    case "file_name_regex":
       return fileNameRegex.equals(value);
-    case "max_file_size" :
+    case "max_file_size":
       return Integer.toString(maxFileSize).equals(value);
-    case "commit_committer_check" :
+    case "commit_committer_check":
       return Boolean.toString(commitCommitterCheck).equals(value);
-    case "reject_unsigned_commits" :
+    case "reject_unsigned_commits":
       return Boolean.toString(rejectUnsignedCommits).equals(value);
     default:
       throw new IllegalStateException("Unknown rule name '" + ruleName + "'");
@@ -216,8 +225,7 @@ public class PushRules {
     return "PushRules [id=" + id + ", createdAt=" + createdAt + ", commitMessageRegex=" + commitMessageRegex
         + ", commitMessageNegativeRegex=" + commitMessageNegativeRegex + ", branchNameRegex=" + branchNameRegex
         + ", denyDeleteTag=" + denyDeleteTag + ", memberCheck=" + memberCheck + ", preventSecrets=" + preventSecrets
-        + ", authorEmailRegex=" + authorEmailRegex + ", fileNameRegex=" + fileNameRegex + ", maxFileSize="
-        + maxFileSize + ", commitCommitterCheck=" + commitCommitterCheck + ", rejectUnsignedCommits="
-        + rejectUnsignedCommits + "]";
+        + ", authorEmailRegex=" + authorEmailRegex + ", fileNameRegex=" + fileNameRegex + ", maxFileSize=" + maxFileSize
+        + ", commitCommitterCheck=" + commitCommitterCheck + ", rejectUnsignedCommits=" + rejectUnsignedCommits + "]";
   }
 }

@@ -169,8 +169,18 @@ public class GitLabClientIntegrationTest {
     List<Namespace> namespaces = client.getNamespaces(null);
     assertThat(namespaces).isNotNull().isNotEmpty();
     for (Namespace namespace : namespaces) {
-      LOG.info("{} ({}, {}):", namespace.getPath(), namespace.getKind(), namespace.getId());
+      LOG.info("{} ({}, {})", namespace.getPath(), namespace.getKind(), namespace.getId());
     }
+  }
+
+  @Test
+  public void testGetPushRulesForProject() {
+    List<Project> projects = client.getProjects(null);
+    assertThat(projects).isNotNull().isNotEmpty();
+    Project project = projects.get(0);
+    PushRules rules = client.getPushRules(project.getId());
+    LOG.info("{} ({}): {}", project.getPathWithNamespace(), project.getId(), rules);
+    assertThat(rules).isNotNull().hasNoNullFieldsOrProperties();
   }
 
   @Test
