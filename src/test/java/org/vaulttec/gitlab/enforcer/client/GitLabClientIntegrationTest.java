@@ -38,6 +38,7 @@ import org.vaulttec.gitlab.enforcer.client.model.Namespace;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
 import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
+import org.vaulttec.gitlab.enforcer.client.model.PushRules;
 
 @ActiveProfiles("test")
 @IfProfileValue(name = "run.integration.tests", value = "true")
@@ -170,5 +171,15 @@ public class GitLabClientIntegrationTest {
     for (Namespace namespace : namespaces) {
       LOG.info("{} ({}, {}):", namespace.getPath(), namespace.getKind(), namespace.getId());
     }
+  }
+
+  @Test
+  public void testUpdatePushRulesForProject() {
+    List<Project> projects = client.getProjects(null);
+    assertThat(projects).isNotNull().isNotEmpty();
+    Project project = projects.get(0);
+    LOG.info("{} ({})", project.getPathWithNamespace(), project.getId());
+    PushRules rules = client.updatePushRules(project.getId(), "member_check", "true");
+    assertThat(rules).isNotNull().hasFieldOrPropertyWithValue("memberCheck", true);
   }
 }

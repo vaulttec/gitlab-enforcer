@@ -36,6 +36,7 @@ rules:
       auto_devops_enabled: false
       project_creation_level: maintainer
       subgroup_creation_level: owner
+
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     use: always
     config:
@@ -44,6 +45,7 @@ rules:
       name: master
       push_access_level: 30
       merge_access_level: 30
+
   - rule: org.vaulttec.gitlab.enforcer.rule.ProtectedBranchRule
     use: always
     config:
@@ -52,4 +54,9 @@ rules:
       name: release/*
       push_access_level: 40
       merge_access_level: 40
-  
+
+  - rule: org.vaulttec.gitlab.enforcer.rule.PushRulesRule
+    use: always
+    config:
+      skipUserProjects: true
+      member_check: true

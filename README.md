@@ -12,6 +12,7 @@ listener which enforces certain configuration rules on newly created GitLab grou
    - [Default subgroup-creation level](https://docs.gitlab.com/ee/user/group/subgroups/#creating-a-subgroup)
  * Project
    - [Protected Branches](https://docs.gitlab.com/ee/user/project/protected_branches.html)
+   - [Push Rules](https://docs.gitlab.com/ee/push_rules/push_rules.html)
 
 These rules are defined in [`src/main/resources/config/application.yml`](src/main/resources/config/application.yml)
 ```
@@ -40,6 +41,11 @@ rules:
       name: release/*
       push_access_level: 40
       merge_access_level: 40
+  - rule: org.vaulttec.gitlab.enforcer.rule.PushRulesRule
+    use: always
+    config:
+      skipUserProjects: true
+      member_check: true
 ```
 
 All the rules marked with the configuration property `use: always` are automatically re-enforced at a specified interval (msec)

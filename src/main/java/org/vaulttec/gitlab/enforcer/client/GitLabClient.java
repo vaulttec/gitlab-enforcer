@@ -37,6 +37,7 @@ import org.vaulttec.gitlab.enforcer.client.model.Group;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace;
 import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
+import org.vaulttec.gitlab.enforcer.client.model.PushRules;
 import org.vaulttec.http.client.AbstractRestClient;
 import org.vaulttec.http.client.LinkHeader;
 
@@ -60,6 +61,8 @@ public class GitLabClient extends AbstractRestClient {
   protected static final ParameterizedTypeReference<List<ProtectedBranch>> RESPONSE_TYPE_PROTECTED_BRANCHES = new ParameterizedTypeReference<List<ProtectedBranch>>() {
   };
   protected static final ParameterizedTypeReference<List<Namespace>> RESPONSE_TYPE_NAMESPACES = new ParameterizedTypeReference<List<Namespace>>() {
+  };
+  protected static final ParameterizedTypeReference<PushRules> RESPONSE_TYPE_PUSH_RULES = new ParameterizedTypeReference<PushRules>() {
   };
 
   GitLabClient(GitLabClientConfig config, RestTemplateBuilder restTemplateBuilder) {
@@ -235,5 +238,22 @@ public class GitLabClient extends AbstractRestClient {
       uriVariables.put("search", search);
     }
     return makeReadListApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_NAMESPACES, uriVariables);
+  }
+
+  public PushRules updatePushRules(String projectId, String... settings) {
+    if (!StringUtils.hasText(projectId)) {
+      throw new IllegalStateException("GitLab project ID required");
+    }
+    if (settings.length % 2 != 0) {
+      throw new IllegalStateException("Key-value required - uneven number of settings");
+    }
+    LOG.debug("Updating push rules for project '{}'", projectId);
+    String apiCall = "/projects/{projectId}/push_rule?";
+    Map<String, String> uriVariables = createUriVariables("projectId", projectId);
+    for (int i = 0; i < settings.length; i += 2) {
+      apiCall += (apiCall.contains("?") ? "&" : "?") + settings[i] + "={" + settings[i] + "}";
+      uriVariables.put(settings[i], settings[i + 1]);
+    }
+    return makeReadApiCall(apiCall, HttpMethod.PUT, RESPONSE_TYPE_PUSH_RULES, uriVariables);
   }
 }
