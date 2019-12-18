@@ -117,6 +117,6 @@ public class Project {
 
   @Override
   public String toString() {
-    return "GLProject [id=" + id + ", path=" + path + ", name=" + name + "]";
+    return "Project [id=" + id + ", path=" + path + ", name=" + name + "]";
   }
 }

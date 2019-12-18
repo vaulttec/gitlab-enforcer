@@ -73,7 +73,7 @@ public class AccessLevel {
 
   @Override
   public String toString() {
-    return "GLAccessLevels [permission=" + permission + ", userId=" + userId + ", groupId=" + groupId + ", description="
+    return "AccessLevels [permission=" + permission + ", userId=" + userId + ", groupId=" + groupId + ", description="
         + description + "]";
   }
 }

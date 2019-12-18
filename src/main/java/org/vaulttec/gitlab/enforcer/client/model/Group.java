@@ -81,6 +81,6 @@ public class Group {
 
   @Override
   public String toString() {
-    return "GLGroup [id=" + id + ", path=" + path + ", name=" + name + "]";
+    return "Group [id=" + id + ", path=" + path + ", name=" + name + "]";
   }
 }

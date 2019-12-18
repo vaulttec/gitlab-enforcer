@@ -137,7 +137,7 @@ public class ProtectedBranch {
 
   @Override
   public String toString() {
-    return "GLProtectedBranch [name=" + name + ", pushAccessLevels=" + pushAccessLevels + ", mergeAccessLevels="
+    return "ProtectedBranch [name=" + name + ", pushAccessLevels=" + pushAccessLevels + ", mergeAccessLevels="
         + mergeAccessLevels + ", unprotectAccessLevels=" + unprotectAccessLevels + "]";
   }
 }

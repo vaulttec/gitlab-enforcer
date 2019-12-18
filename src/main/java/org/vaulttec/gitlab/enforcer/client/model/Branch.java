@@ -111,7 +111,7 @@ public class Branch {
 
   @Override
   public String toString() {
-    return "GLBranch [name=" + name + ", isProtected=" + isProtected + ", developersCanPush=" + developersCanPush
+    return "Branch [name=" + name + ", isProtected=" + isProtected + ", developersCanPush=" + developersCanPush
         + ", developersCanMerge=" + developersCanMerge + ", canMerge=" + canPush + "]";
   }
 }
