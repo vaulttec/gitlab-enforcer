@@ -74,7 +74,7 @@ public class PushRulesRule extends AbstractRule {
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
       PushRules rules = client.getPushRules(event.getId());
-      if (!rules.isActiveSettings(settings)) {
+      if (rules == null || !rules.isActiveSettings(settings)) {
         LOG.info("Enforcing push rules in project '{}'", event.getPathWithNamespace());
         if (client.updatePushRules(event.getId(), settings) != null) {
           eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PUSH_RULES",
