@@ -181,7 +181,7 @@ public class GitLabClientIntegrationTest {
     Project project = projects.get(0);
     PushRules rules = client.getPushRules(project.getId());
     LOG.info("{} ({}): {}", project.getPathWithNamespace(), project.getId(), rules);
-    assertThat(rules).isNotNull().hasNoNullFieldsOrProperties();
+    assertThat(rules).isNotNull();
   }
 
   @Test

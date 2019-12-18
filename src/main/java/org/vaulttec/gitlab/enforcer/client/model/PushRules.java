@@ -32,11 +32,11 @@ public class PushRules {
   @JsonProperty("branch_name_regex")
   private String branchNameRegex;
   @JsonProperty("deny_delete_tag")
-  private boolean denyDeleteTag;
+  private Boolean denyDeleteTag;
   @JsonProperty("member_check")
-  private boolean memberCheck;
+  private Boolean memberCheck;
   @JsonProperty("prevent_secrets")
-  private boolean preventSecrets;
+  private Boolean preventSecrets;
   @JsonProperty("author_email_regex")
   private String authorEmailRegex;
   @JsonProperty("file_name_regex")
@@ -44,9 +44,9 @@ public class PushRules {
   @JsonProperty("max_file_size")
   private Integer maxFileSize;
   @JsonProperty("commit_committer_check")
-  private boolean commitCommitterCheck;
+  private Boolean commitCommitterCheck;
   @JsonProperty("reject_unsigned_commits")
-  private boolean rejectUnsignedCommits;
+  private Boolean rejectUnsignedCommits;
 
   public String getId() {
     return id;
@@ -164,27 +164,27 @@ public class PushRules {
   public boolean isRuleActive(String ruleName, String value) {
     switch (ruleName) {
     case "commit_message_regex":
-      return commitMessageRegex.equals(value);
+      return commitMessageRegex != null && commitMessageRegex.equals(value);
     case "commit_message_nagative_regex":
-      return commitMessageNegativeRegex.equals(value);
+      return commitMessageNegativeRegex != null && commitMessageNegativeRegex.equals(value);
     case "branch_name_regex":
-      return branchNameRegex.equals(value);
+      return branchNameRegex != null && branchNameRegex.equals(value);
     case "denyDeleteTag":
-      return Boolean.toString(denyDeleteTag).equals(value);
+      return denyDeleteTag != null && denyDeleteTag.toString().equals(value);
     case "member_check":
-      return Boolean.toString(memberCheck).equals(value);
+      return memberCheck != null && memberCheck.toString().equals(value);
     case "prevent_secrets":
-      return Boolean.toString(preventSecrets).equals(value);
+      return preventSecrets != null && preventSecrets.toString().equals(value);
     case "author_email_regex":
-      return authorEmailRegex.equals(value);
+      return authorEmailRegex != null && authorEmailRegex.equals(value);
     case "file_name_regex":
-      return fileNameRegex.equals(value);
+      return fileNameRegex != null && fileNameRegex.equals(value);
     case "max_file_size":
-      return Integer.toString(maxFileSize).equals(value);
+      return maxFileSize != null && maxFileSize.toString().equals(value);
     case "commit_committer_check":
-      return Boolean.toString(commitCommitterCheck).equals(value);
+      return commitCommitterCheck != null && commitCommitterCheck.toString().equals(value);
     case "reject_unsigned_commits":
-      return Boolean.toString(rejectUnsignedCommits).equals(value);
+      return rejectUnsignedCommits != null && rejectUnsignedCommits.toString().equals(value);
     default:
       throw new IllegalStateException("Unknown rule name '" + ruleName + "'");
     }
