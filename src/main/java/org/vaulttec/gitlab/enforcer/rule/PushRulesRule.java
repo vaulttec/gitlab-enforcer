@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
@@ -75,8 +76,9 @@ public class PushRulesRule extends AbstractRule {
     if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
       PushRules rules = client.getPushRules(event.getId());
       if (rules == null || !rules.isActiveSettings(settings)) {
+        HttpMethod method = (rules == null ? HttpMethod.POST : HttpMethod.PUT); 
         LOG.info("Enforcing push rules in project '{}'", event.getPathWithNamespace());
-        if (client.updatePushRules(event.getId(), settings) != null) {
+        if (client.writePushRules(method, event.getId(), settings) != null) {
           eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PUSH_RULES",
               "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace()));
         }

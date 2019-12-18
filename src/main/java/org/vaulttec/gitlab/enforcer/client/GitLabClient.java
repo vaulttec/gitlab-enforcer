@@ -250,7 +250,7 @@ public class GitLabClient extends AbstractRestClient {
     return makeReadApiCall(apiCall, HttpMethod.GET, RESPONSE_TYPE_PUSH_RULES, uriVariables);
   }
 
-  public PushRules updatePushRules(String projectId, String... settings) {
+  public PushRules writePushRules(HttpMethod method, String projectId, String... settings) {
     if (!StringUtils.hasText(projectId)) {
       throw new IllegalStateException("GitLab project ID required");
     }
@@ -264,6 +264,6 @@ public class GitLabClient extends AbstractRestClient {
       apiCall += (apiCall.contains("?") ? "&" : "?") + settings[i] + "={" + settings[i] + "}";
       uriVariables.put(settings[i], settings[i + 1]);
     }
-    return makeReadApiCall(apiCall, HttpMethod.PUT, RESPONSE_TYPE_PUSH_RULES, uriVariables);
+    return makeReadApiCall(apiCall, method, RESPONSE_TYPE_PUSH_RULES, uriVariables);
   }
 }

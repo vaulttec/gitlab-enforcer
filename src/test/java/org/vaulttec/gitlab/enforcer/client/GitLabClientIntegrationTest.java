@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -189,7 +190,9 @@ public class GitLabClientIntegrationTest {
     assertThat(projects).isNotNull().isNotEmpty();
     Project project = projects.get(0);
     LOG.info("{} ({})", project.getPathWithNamespace(), project.getId());
-    PushRules rules = client.updatePushRules(project.getId(), "member_check", "true");
+    PushRules rules = client.getPushRules(project.getId());
+    HttpMethod method = (rules == null ? HttpMethod.POST : HttpMethod.PUT); 
+    rules = client.writePushRules(method, project.getId(), "member_check", "true");
     assertThat(rules).isNotNull().hasFieldOrPropertyWithValue("memberCheck", true);
   }
 }

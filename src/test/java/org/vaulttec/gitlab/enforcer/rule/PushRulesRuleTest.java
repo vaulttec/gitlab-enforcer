@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.springframework.http.HttpMethod;
 import org.vaulttec.gitlab.enforcer.EnforcerEventPublisher;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
@@ -81,11 +82,9 @@ public class PushRulesRuleTest {
   }
 
   @Test
-  public void testHandle() {
-    PushRules existingRules = new PushRules();
-    existingRules.setMemberCheck(false);
-    when(client.getPushRules(PROJECT_ID)).thenReturn(existingRules);
-    when(client.updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS)).thenReturn(existingRules);
+  public void testHandleAdd() {
+    when(client.getPushRules(PROJECT_ID)).thenReturn(null);
+    when(client.writePushRules(HttpMethod.POST, PROJECT_ID, PUSH_RULES_SETTINGS)).thenReturn(new PushRules());
 
     Rule rule = new PushRulesRule();
     rule.init(null, eventPublisher, client, config);
@@ -93,7 +92,24 @@ public class PushRulesRuleTest {
     rule.handle(EnforcerExecution.HOOK,
         new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(PROJECT_ID).build());
     verify(client).getPushRules(PROJECT_ID);
-    verify(client).updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS);
+    verify(client).writePushRules(HttpMethod.POST, PROJECT_ID, PUSH_RULES_SETTINGS);
+    verify(eventRepository).add(any(AuditEvent.class));
+  }
+
+  @Test
+  public void testHandleUpdate() {
+    PushRules existingRules = new PushRules();
+    existingRules.setMemberCheck(false);
+    when(client.getPushRules(PROJECT_ID)).thenReturn(existingRules);
+    when(client.writePushRules(HttpMethod.PUT, PROJECT_ID, PUSH_RULES_SETTINGS)).thenReturn(existingRules);
+
+    Rule rule = new PushRulesRule();
+    rule.init(null, eventPublisher, client, config);
+
+    rule.handle(EnforcerExecution.HOOK,
+        new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(PROJECT_ID).build());
+    verify(client).getPushRules(PROJECT_ID);
+    verify(client).writePushRules(HttpMethod.PUT, PROJECT_ID, PUSH_RULES_SETTINGS);
     verify(eventRepository).add(any(AuditEvent.class));
   }
 
@@ -110,7 +126,7 @@ public class PushRulesRuleTest {
     rule.handle(EnforcerExecution.HOOK,
         new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(PROJECT_ID).build());
     verify(client).getPushRules(PROJECT_ID);
-    verify(client, never()).updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS);
+    verify(client, never()).writePushRules(HttpMethod.PUT, PROJECT_ID, PUSH_RULES_SETTINGS);
     verify(eventRepository, never()).add(any(AuditEvent.class));
   }
 
@@ -124,7 +140,7 @@ public class PushRulesRuleTest {
 
     rule.handle(EnforcerExecution.HOOK, new SystemEventBuilder().id(PROJECT_ID).build());
     verify(client).getProject(PROJECT_ID);
-    verify(client, never()).updatePushRules(PROJECT_ID, PUSH_RULES_SETTINGS);
+    verify(client, never()).writePushRules(HttpMethod.PUT, PROJECT_ID, PUSH_RULES_SETTINGS);
     verify(eventRepository, never()).add(any(AuditEvent.class));
   }
 }
