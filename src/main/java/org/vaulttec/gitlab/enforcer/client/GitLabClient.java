@@ -201,6 +201,19 @@ public class GitLabClient extends AbstractRestClient {
     return makeWriteApiCall(apiCall, HttpMethod.DELETE, uriVariables);
   }
 
+  public boolean unshareWithGroup(String projectId, String groupId) {
+    if (!StringUtils.hasText(projectId)) {
+      throw new IllegalStateException("GitLab project ID required");
+    }
+    if (!StringUtils.hasText(groupId)) {
+      throw new IllegalStateException("GitLab group ID required");
+    }
+    LOG.debug("Unsharing project '{}' with group '{}'", projectId, groupId);
+    String apiCall = "/projects/{projectId}/share/{groupId}";
+    Map<String, String> uriVariables = createUriVariables("projectId", projectId, "groupId", groupId);
+    return makeWriteApiCall(apiCall, HttpMethod.DELETE, uriVariables);
+  }
+
   @Override
   protected <T> List<T> makeReadListApiCall(String apiCall, HttpMethod method,
       ParameterizedTypeReference<List<T>> typeReference, Map<String, String> uriVariables) {

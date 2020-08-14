@@ -54,9 +54,15 @@ rules:
       name: release/*
       push_access_level: 40
       merge_access_level: 40
-
+ 
   - rule: org.vaulttec.gitlab.enforcer.rule.PushRulesRule
     use: always
     config:
       skipUserProjects: true
       member_check: true
+ 
+  - rule: org.vaulttec.gitlab.enforcer.rule.UserProjectSettingsRule
+    use: always
+    config:
+      removeSharedGroups: true
+ 

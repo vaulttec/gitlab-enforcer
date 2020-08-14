@@ -13,6 +13,7 @@ listener which enforces certain configuration rules on newly created GitLab grou
  * Project
    - [Protected Branches](https://docs.gitlab.com/ee/user/project/protected_branches.html)
    - [Push Rules](https://docs.gitlab.com/ee/push_rules/push_rules.html)
+   - Removal of [shares with groups](https://docs.gitlab.com/ee/user/project/members/share_project_with_groups.html) from user projects 
 
 These rules are defined in [`src/main/resources/config/application.yml`](src/main/resources/config/application.yml)
 ```
@@ -46,6 +47,10 @@ rules:
     config:
       skipUserProjects: true
       member_check: true
+  - rule: org.vaulttec.gitlab.enforcer.rule.UserProjectSettingsRule
+    use: always
+    config:
+      removeSharedGroups: true
 ```
 
 All the rules marked with the configuration property `use: always` are automatically re-enforced at a specified interval (msec)

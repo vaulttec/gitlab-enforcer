@@ -17,6 +17,8 @@
  */
 package org.vaulttec.gitlab.enforcer.client.model;
 
+import java.util.List;
+
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,15 +32,18 @@ public class Project {
   private String pathWithNamespace;
   private String name;
   private Namespace namespace;
+  @JsonProperty("shared_with_groups")
+  private List<Group> sharedWithGroups;
 
   public Project() {
     super();
   }
 
-  public Project(String id, String name, Namespace namespace) {
+  public Project(String id, String name, Namespace namespace, List<Group> sharedWithGroups) {
     this.id = id;
     this.name = name;
     this.namespace = namespace;
+    this.sharedWithGroups = sharedWithGroups;
   }
 
   public String getId() {
@@ -77,8 +82,16 @@ public class Project {
     return namespace;
   }
 
-  public void setName(Namespace namespace) {
+  public void setNamespace(Namespace namespace) {
     this.namespace = namespace;
+  }
+
+  public List<Group> getSharedWithGroups() {
+    return sharedWithGroups;
+  }
+
+  public void setSharedWithGroups(List<Group> sharedWithGroups) {
+    this.sharedWithGroups = sharedWithGroups;
   }
 
   public Kind getKind() {
@@ -117,6 +130,6 @@ public class Project {
 
   @Override
   public String toString() {
-    return "Project [id=" + id + ", path=" + path + ", name=" + name + "]";
+    return "Project [id=" + id + ", path=" + path + ", name=" + name + ", sharedWithGroups=" + sharedWithGroups + "]";
   }
 }

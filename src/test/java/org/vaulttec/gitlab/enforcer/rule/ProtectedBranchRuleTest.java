@@ -45,7 +45,7 @@ import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 public class ProtectedBranchRuleTest {
 
   private static final String PROJECT_ID = "42";
-  private static final Project GROUP_PROJECT = new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.GROUP));
+  private static final Project GROUP_PROJECT = new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.GROUP), null);
   private static final String BRANCH_NAME = "master";
   private static final String[] BRANCH_SETTINGS = new String[] { "push_access_level", "30", "merge_access_level", "30",
       "unprotect_access_level", "60" };
@@ -95,8 +95,7 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleGroupProjectWithoutExistingBranch() {
-    when(client.getProject(PROJECT_ID))
-        .thenReturn(GROUP_PROJECT);
+    when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS)).thenReturn(new ProtectedBranch());
 
     Rule rule = new ProtectedBranchRule();
@@ -111,8 +110,7 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleGroupProjectWithExistingBranchWithSameSettings() {
-    when(client.getProject(PROJECT_ID))
-        .thenReturn(GROUP_PROJECT);
+    when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID))
         .thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME, BRANCH_SETTINGS)));
 
@@ -128,8 +126,7 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleGroupProjectWithExistingBranchWithDifferentSettings() {
-    when(client.getProject(PROJECT_ID))
-        .thenReturn(GROUP_PROJECT);
+    when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME)));
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS)).thenReturn(new ProtectedBranch());
 
@@ -145,7 +142,8 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleUserProjectWithExistingBranchWithDifferentSettings() {
-    when(client.getProject(PROJECT_ID)).thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER)));
+    when(client.getProject(PROJECT_ID))
+        .thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER), null));
     when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME)));
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS)).thenReturn(new ProtectedBranch());
 
@@ -161,7 +159,8 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleUserProjectWithSkipUserProjects() {
-    when(client.getProject(PROJECT_ID)).thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER)));
+    when(client.getProject(PROJECT_ID))
+        .thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER), null));
 
     config.put("skipUserProjects", "true");
     Rule rule = new ProtectedBranchRule();
@@ -177,8 +176,7 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleGroupProjectWithSkipUserProjects() {
-    when(client.getProject(PROJECT_ID))
-        .thenReturn(GROUP_PROJECT);
+    when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS)).thenReturn(new ProtectedBranch());
 
     config.put("skipUserProjects", "true");
@@ -195,8 +193,7 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleGroupProjectWithStricterSettings() {
-    when(client.getProject(PROJECT_ID))
-        .thenReturn(GROUP_PROJECT);
+    when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID))
         .thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME, STRICTER_BRANCH_SETTINGS)));
 
@@ -213,8 +210,7 @@ public class ProtectedBranchRuleTest {
 
   @Test
   public void testHandleGroupProjectWithSomeStricterSettings() {
-    when(client.getProject(PROJECT_ID))
-        .thenReturn(GROUP_PROJECT);
+    when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID))
         .thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME, SOME_STRICTER_BRANCH_SETTINGS)));
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, MERGED_STRICTER_BRANCH_SETTINGS))

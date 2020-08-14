@@ -17,13 +17,23 @@
  */
 package org.vaulttec.gitlab.enforcer.client.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Group {
+  @JsonAlias("group_id")
   private String id;
+  @JsonAlias("group_full_path")
   private String path;
   private String name;
+
+  public Group() {
+  }
+
+  public Group(String id) {
+    this.id = id;
+  }
 
   public String getId() {
     return id;

@@ -132,7 +132,7 @@ public class PushRulesRuleTest {
 
   @Test
   public void testHandleUserProjectWithSkipUserProjects() {
-    when(client.getProject(PROJECT_ID)).thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER)));
+    when(client.getProject(PROJECT_ID)).thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER), null));
 
     config.put("skipUserProjects", "true");
     Rule rule = new PushRulesRule();
@@ -140,6 +140,7 @@ public class PushRulesRuleTest {
 
     rule.handle(EnforcerExecution.HOOK, new SystemEventBuilder().id(PROJECT_ID).build());
     verify(client).getProject(PROJECT_ID);
+    verify(client, never()).getPushRules(PROJECT_ID);
     verify(client, never()).writePushRules(HttpMethod.PUT, PROJECT_ID, PUSH_RULES_SETTINGS);
     verify(eventRepository, never()).add(any(AuditEvent.class));
   }
