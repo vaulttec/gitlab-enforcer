@@ -25,6 +25,7 @@ public class SystemEventBuilder {
   private String path;
   private String pathWithNamespace;
   private String id;
+  private Object object;
 
   public SystemEventBuilder eventName(SystemEventName eventName) {
     this.eventName = eventName;
@@ -50,6 +51,11 @@ public class SystemEventBuilder {
     return this;
   }
 
+  public SystemEventBuilder object(Object object) {
+    this.object = object;
+    return this;
+  }
+
   public SystemEvent build() {
     SystemEvent event = new SystemEvent();
     event.setCreatedAt(new Date(System.currentTimeMillis()));
@@ -58,6 +64,7 @@ public class SystemEventBuilder {
     event.setPath(path);
     event.setPathWithNamespace(pathWithNamespace);
     event.setId(id);
+    event.setObject(object);
     return event;
   }
 }

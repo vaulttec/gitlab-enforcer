@@ -64,7 +64,7 @@ public class EnforcerClient {
     if (groups != null) {
       groups.forEach(group -> {
         SystemEvent event = new SystemEventBuilder().eventName(SystemEventName.GROUP_CREATE).id(group.getId())
-            .name(group.getName()).path(group.getPath()).build();
+            .object(group).name(group.getName()).path(group.getPath()).build();
         enforce(execution, event);
       });
     }
@@ -72,7 +72,8 @@ public class EnforcerClient {
     if (projects != null) {
       projects.forEach(project -> {
         SystemEvent event = new SystemEventBuilder().eventName(SystemEventName.PROJECT_CREATE).id(project.getId())
-            .name(project.getName()).path(project.getPath()).pathWithNamespace(project.getPathWithNamespace()).build();
+            .object(project).name(project.getName()).path(project.getPath())
+            .pathWithNamespace(project.getPathWithNamespace()).build();
         enforce(execution, event);
       });
     }

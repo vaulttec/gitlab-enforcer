@@ -32,6 +32,7 @@ import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.model.AccessLevel;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
 import org.vaulttec.gitlab.enforcer.client.model.Permission;
+import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
@@ -90,7 +91,7 @@ public class ProtectedBranchRule extends AbstractRule {
 
   @Override
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
-    if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
+    if (!skip(event)) {
       // Create a mutable list of the initial protected branch configuration
       // This list will be modified in hasStricterSettings()!!!
       List<String> enforcedSettings = Arrays.stream(settings).collect(Collectors.toList());
@@ -125,6 +126,14 @@ public class ProtectedBranchRule extends AbstractRule {
             "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace(), "branch=" + name));
       }
     }
+  }
+
+  private boolean skip(SystemEvent event) {
+    if (!skipUserProjects) {
+      return false;
+    }
+    Project project = event.getObject() != null ? (Project) event.getObject() : client.getProject(event.getId());
+    return project.getKind() == Kind.USER;
   }
 
   private boolean hasRequiredAccessLevels(ProtectedBranch branch) {

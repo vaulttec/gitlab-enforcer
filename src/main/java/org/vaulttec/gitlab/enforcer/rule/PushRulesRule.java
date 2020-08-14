@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import org.vaulttec.gitlab.enforcer.EnforcerEvents;
 import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
+import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.PushRules;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
@@ -73,7 +74,7 @@ public class PushRulesRule extends AbstractRule {
 
   @Override
   public void doHandle(EnforcerExecution execution, SystemEvent event) {
-    if (!skipUserProjects || client.getProject(event.getId()).getKind() != Kind.USER) {
+    if (!skip(event)) {
       PushRules rules = client.getPushRules(event.getId());
       if (rules == null || !rules.isActiveSettings(settings)) {
         HttpMethod method = (rules == null ? HttpMethod.POST : HttpMethod.PUT); 
@@ -84,5 +85,13 @@ public class PushRulesRule extends AbstractRule {
         }
       }
     }
+  }
+
+  private boolean skip(SystemEvent event) {
+    if (!skipUserProjects) {
+      return false;
+    }
+    Project project = event.getObject() != null ? (Project) event.getObject() : client.getProject(event.getId());
+    return project.getKind() == Kind.USER;
   }
 }
