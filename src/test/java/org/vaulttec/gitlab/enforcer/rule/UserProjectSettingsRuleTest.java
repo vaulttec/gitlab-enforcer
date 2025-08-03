@@ -17,16 +17,6 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.actuate.audit.AuditEvent;
@@ -36,17 +26,25 @@ import org.vaulttec.gitlab.enforcer.EnforcerExecution;
 import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace;
-import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
+import org.vaulttec.gitlab.enforcer.client.model.Project;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventBuilder;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class UserProjectSettingsRuleTest {
 
   private static final String PROJECT_ID = "42";
   private static final String GROUP_ID = "43";
   private static final Project USER_PROJECT = new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER),
-      Arrays.asList(new Group(GROUP_ID)));
+      List.of(new Group(GROUP_ID)));
 
   private AuditEventRepository eventRepository;
   private EnforcerEventPublisher eventPublisher;
