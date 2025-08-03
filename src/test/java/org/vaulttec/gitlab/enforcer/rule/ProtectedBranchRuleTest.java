@@ -17,17 +17,6 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.actuate.audit.AuditEvent;
@@ -42,19 +31,27 @@ import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventBuilder;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 public class ProtectedBranchRuleTest {
 
   private static final String PROJECT_ID = "42";
-  private static final Project GROUP_PROJECT = new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.GROUP), null);
+  private static final Project GROUP_PROJECT = new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.GROUP));
   private static final String BRANCH_NAME = "master";
-  private static final String[] BRANCH_SETTINGS = new String[] { "push_access_level", "30", "merge_access_level", "30",
-      "unprotect_access_level", "60" };
-  private static final String[] STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "40",
-      "merge_access_level", "30", "unprotect_access_level", "60" };
-  private static final String[] SOME_STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "20",
-      "merge_access_level", "30", "unprotect_access_level", "60" };
-  private static final String[] MERGED_STRICTER_BRANCH_SETTINGS = new String[] { "push_access_level", "30",
-      "merge_access_level", "30", "unprotect_access_level", "60" };
+  private static final String[] BRANCH_SETTINGS = new String[]{"push_access_level", "30", "merge_access_level", "30",
+      "unprotect_access_level", "60"};
+  private static final String[] STRICTER_BRANCH_SETTINGS = new String[]{"push_access_level", "40",
+      "merge_access_level", "30", "unprotect_access_level", "60"};
+  private static final String[] SOME_STRICTER_BRANCH_SETTINGS = new String[]{"push_access_level", "20",
+      "merge_access_level", "30", "unprotect_access_level", "60"};
+  private static final String[] MERGED_STRICTER_BRANCH_SETTINGS = new String[]{"push_access_level", "30",
+      "merge_access_level", "30", "unprotect_access_level", "60"};
 
   private AuditEventRepository eventRepository;
   private EnforcerEventPublisher eventPublisher;
@@ -112,7 +109,7 @@ public class ProtectedBranchRuleTest {
   public void testHandleGroupProjectWithExistingBranchWithSameSettings() {
     when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID))
-        .thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME, BRANCH_SETTINGS)));
+        .thenReturn(List.of(new ProtectedBranch(BRANCH_NAME, BRANCH_SETTINGS)));
 
     Rule rule = new ProtectedBranchRule();
     rule.init(null, eventPublisher, client, config);
@@ -127,7 +124,7 @@ public class ProtectedBranchRuleTest {
   @Test
   public void testHandleGroupProjectWithExistingBranchWithDifferentSettings() {
     when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
-    when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME)));
+    when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(List.of(new ProtectedBranch(BRANCH_NAME)));
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS)).thenReturn(new ProtectedBranch());
 
     Rule rule = new ProtectedBranchRule();
@@ -143,8 +140,8 @@ public class ProtectedBranchRuleTest {
   @Test
   public void testHandleUserProjectWithExistingBranchWithDifferentSettings() {
     when(client.getProject(PROJECT_ID))
-        .thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER), null));
-    when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME)));
+        .thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER)));
+    when(client.getProtectedBranchesForProject(PROJECT_ID)).thenReturn(List.of(new ProtectedBranch(BRANCH_NAME)));
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS)).thenReturn(new ProtectedBranch());
 
     Rule rule = new ProtectedBranchRule();
@@ -160,7 +157,7 @@ public class ProtectedBranchRuleTest {
   @Test
   public void testHandleUserProjectWithSkipUserProjects() {
     when(client.getProject(PROJECT_ID))
-        .thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER), null));
+        .thenReturn(new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.USER)));
 
     config.put("skipUserProjects", "true");
     Rule rule = new ProtectedBranchRule();
@@ -195,7 +192,7 @@ public class ProtectedBranchRuleTest {
   public void testHandleGroupProjectWithStricterSettings() {
     when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID))
-        .thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME, STRICTER_BRANCH_SETTINGS)));
+        .thenReturn(List.of(new ProtectedBranch(BRANCH_NAME, STRICTER_BRANCH_SETTINGS)));
 
     config.put("keepStricterAccessLevel", "true");
     Rule rule = new ProtectedBranchRule();
@@ -212,7 +209,7 @@ public class ProtectedBranchRuleTest {
   public void testHandleGroupProjectWithSomeStricterSettings() {
     when(client.getProject(PROJECT_ID)).thenReturn(GROUP_PROJECT);
     when(client.getProtectedBranchesForProject(PROJECT_ID))
-        .thenReturn(Arrays.asList(new ProtectedBranch(BRANCH_NAME, SOME_STRICTER_BRANCH_SETTINGS)));
+        .thenReturn(List.of(new ProtectedBranch(BRANCH_NAME, SOME_STRICTER_BRANCH_SETTINGS)));
     when(client.protectBranchForProject(PROJECT_ID, BRANCH_NAME, MERGED_STRICTER_BRANCH_SETTINGS))
         .thenReturn(new ProtectedBranch());
 
@@ -225,5 +222,22 @@ public class ProtectedBranchRuleTest {
     verify(client).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
     verify(client).protectBranchForProject(PROJECT_ID, BRANCH_NAME, MERGED_STRICTER_BRANCH_SETTINGS);
     verify(eventRepository).add(any(AuditEvent.class));
+  }
+
+  @Test
+  public void testHandleProjectWithoutGitRepository() {
+    Project projectWithoutRepo = new Project(PROJECT_ID, null, new Namespace("1", "ns1", Kind.GROUP));
+    projectWithoutRepo.setRepositoryAccessLevel("disabled");
+    when(client.getProject(PROJECT_ID)).thenReturn(projectWithoutRepo);
+
+    Rule rule = new ProtectedBranchRule();
+    rule.init(null, eventPublisher, client, config);
+
+    rule.handle(EnforcerExecution.HOOK, new SystemEventBuilder().id(PROJECT_ID).build());
+    verify(client).getProject(PROJECT_ID);
+    verify(client, never()).getProtectedBranchesForProject(PROJECT_ID);
+    verify(client, never()).unprotectBranchForProject(PROJECT_ID, BRANCH_NAME);
+    verify(client, never()).protectBranchForProject(PROJECT_ID, BRANCH_NAME, BRANCH_SETTINGS);
+    verify(eventRepository, never()).add(any(AuditEvent.class));
   }
 }

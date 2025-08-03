@@ -17,11 +17,6 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -34,6 +29,11 @@ import org.vaulttec.gitlab.enforcer.client.model.PushRules;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
 public class PushRulesRule extends AbstractRule {
 
   private static final Logger LOG = LoggerFactory.getLogger(PushRulesRule.class);
@@ -44,7 +44,7 @@ public class PushRulesRule extends AbstractRule {
 
   @Override
   public String getInfo() {
-    StringBuffer info = new StringBuffer("Enforce Push Rules");
+    StringBuilder info = new StringBuilder("Enforce Push Rules");
     if (settingsInfo != null) {
       info.append(" (").append(String.join(", ", settingsInfo)).append(")");
     }
@@ -63,13 +63,13 @@ public class PushRulesRule extends AbstractRule {
       this.skipUserProjects = Boolean.parseBoolean(skipUserProjectsText);
     }
     this.settings = config.entrySet().stream().filter(e -> !"skipUserProjects".equals(e.getKey()))
-        .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
+        .flatMap(e -> Stream.of(e.getKey(), e.getValue())).toArray(String[]::new);
     List<String> settingsList = new ArrayList<>();
     settingsList.add("skipUserProjects=" + skipUserProjects);
     for (int i = 0; i < settings.length; i += 2) {
       settingsList.add(settings[i] + "=" + settings[i + 1]);
     }
-    this.settingsInfo = settingsList.toArray(new String[settingsList.size()]);
+    this.settingsInfo = settingsList.toArray(new String[0]);
   }
 
   @Override
@@ -88,10 +88,11 @@ public class PushRulesRule extends AbstractRule {
   }
 
   private boolean skip(SystemEvent event) {
-    if (!skipUserProjects) {
-      return false;
-    }
     Project project = event.getObject() != null ? (Project) event.getObject() : client.getProject(event.getId());
-    return project.getKind() == Kind.USER;
+    if (project.isRepositoryDisabled()) {
+      return true;
+    }
+
+    return skipUserProjects &&project.getKind() == Kind.USER;
   }
 }

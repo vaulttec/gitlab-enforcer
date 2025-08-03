@@ -17,13 +17,6 @@
  */
 package org.vaulttec.gitlab.enforcer.rule;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -37,6 +30,10 @@ import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEvent;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class ProtectedBranchRule extends AbstractRule {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProtectedBranchRule.class);
@@ -49,7 +46,7 @@ public class ProtectedBranchRule extends AbstractRule {
 
   @Override
   public String getInfo() {
-    StringBuffer info = new StringBuffer("Enforce Protected Branch");
+    StringBuilder info = new StringBuilder("Enforce Protected Branch");
     if (settingsInfo != null) {
       info.append(" (").append(String.join(", ", settingsInfo)).append(")");
     }
@@ -78,7 +75,7 @@ public class ProtectedBranchRule extends AbstractRule {
     this.settings = config.entrySet().stream()
         .filter(e -> !"name".equals(e.getKey()) && !"skipUserProjects".equals(e.getKey())
             && !"keepStricterAccessLevel".equals(e.getKey()))
-        .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream()).toArray(size -> new String[size]);
+        .flatMap(e -> Stream.of(e.getKey(), e.getValue())).toArray(String[]::new);
     List<String> settingsList = new ArrayList<>();
     settingsList.add("skipUserProjects=" + skipUserProjects);
     settingsList.add("keepStricterAccessLevel=" + keepStricterAccessLevel);
@@ -86,7 +83,7 @@ public class ProtectedBranchRule extends AbstractRule {
     for (int i = 0; i < settings.length; i += 2) {
       settingsList.add(settings[i] + "=" + settings[i + 1]);
     }
-    this.settingsInfo = settingsList.toArray(new String[settingsList.size()]);
+    this.settingsInfo = settingsList.toArray(new String[0]);
   }
 
   @Override
@@ -102,8 +99,7 @@ public class ProtectedBranchRule extends AbstractRule {
       if (branches != null) {
         existingBranch = branches.stream().filter(branch -> name.equals(branch.getName())).findFirst();
         if (existingBranch.isPresent()) {
-          // If the existing branch has already the required access levels then we are
-          // set
+          // If the existing branch has already the required access levels then we are set
           if (hasRequiredAccessLevels(existingBranch.get())) {
             return;
           }
@@ -120,8 +116,7 @@ public class ProtectedBranchRule extends AbstractRule {
       if (existingBranch.isPresent()) {
         client.unprotectBranchForProject(event.getId(), name);
       }
-      if (client.protectBranchForProject(event.getId(), name,
-          enforcedSettings.stream().toArray(String[]::new)) != null) {
+      if (client.protectBranchForProject(event.getId(), name, enforcedSettings.toArray(new String[0])) != null) {
         eventPublisher.publishEvent(EnforcerEvents.createProjectEvent(execution, "PROTECTED_BRANCH",
             "projectId=" + event.getId(), "projectPath=" + event.getPathWithNamespace(), "branch=" + name));
       }
@@ -129,11 +124,11 @@ public class ProtectedBranchRule extends AbstractRule {
   }
 
   private boolean skip(SystemEvent event) {
-    if (!skipUserProjects) {
-      return false;
-    }
     Project project = event.getObject() != null ? (Project) event.getObject() : client.getProject(event.getId());
-    return project.getKind() == Kind.USER;
+    if (project.isRepositoryDisabled()) {
+      return true;
+    }
+    return skipUserProjects && project.getKind() == Kind.USER;
   }
 
   private boolean hasRequiredAccessLevels(ProtectedBranch branch) {

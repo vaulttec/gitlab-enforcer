@@ -17,12 +17,11 @@
  */
 package org.vaulttec.gitlab.enforcer.client.model;
 
-import java.util.List;
-
-import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.vaulttec.gitlab.enforcer.client.model.Namespace.Kind;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Project {
@@ -34,16 +33,27 @@ public class Project {
   private Namespace namespace;
   @JsonProperty("shared_with_groups")
   private List<Group> sharedWithGroups;
+  @JsonProperty("repository_access_level")
+  private String repositoryAccessLevel = "enabled";
 
   public Project() {
     super();
   }
 
+  public Project(String id, String name, Namespace namespace) {
+    this(id, name, namespace, null, "enabled");
+  }
+
   public Project(String id, String name, Namespace namespace, List<Group> sharedWithGroups) {
+    this(id, name, namespace, sharedWithGroups, "enabled");
+  }
+
+  public Project(String id, String name, Namespace namespace, List<Group> sharedWithGroups, String repositoryAccessLevel) {
     this.id = id;
     this.name = name;
     this.namespace = namespace;
     this.sharedWithGroups = sharedWithGroups;
+    this.repositoryAccessLevel = repositoryAccessLevel;
   }
 
   public String getId() {
@@ -94,6 +104,18 @@ public class Project {
     this.sharedWithGroups = sharedWithGroups;
   }
 
+  public String getRepositoryAccessLevel() {
+    return repositoryAccessLevel;
+  }
+
+  public void setRepositoryAccessLevel(String repositoryAccessLevel) {
+    this.repositoryAccessLevel = repositoryAccessLevel;
+  }
+
+  public boolean isRepositoryDisabled() {
+    return "disabled".equalsIgnoreCase(repositoryAccessLevel);
+  }
+
   public Kind getKind() {
     return namespace != null ? namespace.getKind() : null;
   }
@@ -130,6 +152,6 @@ public class Project {
 
   @Override
   public String toString() {
-    return "Project [id=" + id + ", path=" + path + ", name=" + name + ", sharedWithGroups=" + sharedWithGroups + "]";
+    return "Project [id=" + id + ", path=" + path + ", name=" + name + ", sharedWithGroups=" + sharedWithGroups + ", repositoryAccessLevel=" + repositoryAccessLevel + "]";
   }
 }
