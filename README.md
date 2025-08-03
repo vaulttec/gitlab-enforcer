@@ -65,7 +65,7 @@ enforcer:
 ## Install Maven Wrapper
 ```
 cd /path/to/project
-mvn -N io.takari:maven:wrapper
+mvn -N wrapper:wrapper
 ```
 
 ## Run the project with
