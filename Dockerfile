@@ -5,7 +5,7 @@ EXPOSE 8080
 ENV APP_HOME /app
 ENV JAVA_OPTS=""
 
-RUN adduser --system --uid 1000 springboot && \
+RUN useradd -r -u 1000 -m springboot && \
     mkdir -p $APP_HOME/logs && \
     chown -R springboot $APP_HOME
 USER springboot
