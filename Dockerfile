@@ -14,9 +14,6 @@ COPY .git ./.git
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
-# Extract layers for better caching
-RUN java -Djarmode=layertools -jar target/*.jar extract
-
 # Runtime stage
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
@@ -24,11 +21,8 @@ WORKDIR /app
 # Add a non-root user to run the application
 RUN groupadd -r spring && useradd -r -g spring spring
 
-# Copy layers from build stage
-COPY --from=builder /build/dependencies/ ./
-COPY --from=builder /build/spring-boot-loader/ ./
-COPY --from=builder /build/snapshot-dependencies/ ./
-COPY --from=builder /build/application/ ./
+# Copy the JAR file from the builder stage
+COPY --from=builder /build/target/gitlab-enforcer.jar /app/app.jar
 
 # Set ownership of the application files
 RUN chown -R spring:spring /app
@@ -46,4 +40,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Set the entry point
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app/app.jar"]
