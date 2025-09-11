@@ -12,7 +12,7 @@ COPY src ./src
 COPY .git ./.git
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package -DskipTests -B
 
 # Runtime stage
 FROM eclipse-temurin:17-jre-jammy
