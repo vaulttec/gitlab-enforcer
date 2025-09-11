@@ -7,8 +7,11 @@ COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 RUN ./mvnw dependency:go-offline
 
-# Copy source and build
+# Copy source and .git directory for git-commit-id-plugin
 COPY src ./src
+COPY .git ./.git
+
+# Build the application
 RUN ./mvnw clean package -DskipTests
 
 # Extract layers for better caching
