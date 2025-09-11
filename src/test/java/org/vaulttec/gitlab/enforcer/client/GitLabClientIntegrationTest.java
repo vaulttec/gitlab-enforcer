@@ -21,17 +21,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.vaulttec.gitlab.enforcer.Application;
 import org.vaulttec.gitlab.enforcer.client.model.Branch;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
@@ -42,8 +40,7 @@ import org.vaulttec.gitlab.enforcer.client.model.ProtectedBranch;
 import org.vaulttec.gitlab.enforcer.client.model.PushRules;
 
 @ActiveProfiles("test")
-@IfProfileValue(name = "run.integration.tests", value = "true")
-@RunWith(SpringRunner.class)
+@EnabledIfSystemProperty(named = "run.integration.tests", matches = "true")
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.NONE)
 public class GitLabClientIntegrationTest {
   private static final Logger LOG = LoggerFactory.getLogger(GitLabClientIntegrationTest.class);

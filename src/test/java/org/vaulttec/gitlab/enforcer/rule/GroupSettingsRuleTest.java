@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.vaulttec.gitlab.enforcer.EnforcerEventPublisher;
@@ -36,6 +36,7 @@ import org.vaulttec.gitlab.enforcer.client.GitLabClient;
 import org.vaulttec.gitlab.enforcer.client.model.Group;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventBuilder;
 import org.vaulttec.gitlab.enforcer.systemhook.SystemEventName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GroupSettingsRuleTest {
 
@@ -47,11 +48,13 @@ public class GroupSettingsRuleTest {
   private EnforcerEventPublisher eventPublisher;
   private GitLabClient client;
   private Map<String, String> config;
+  private ObjectMapper objectMapper;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  public void setUp() {
     eventRepository = mock(AuditEventRepository.class);
-    eventPublisher = new EnforcerEventPublisher(eventRepository);
+    objectMapper = mock(ObjectMapper.class);
+    eventPublisher = new EnforcerEventPublisher(eventRepository, objectMapper);
     client = mock(GitLabClient.class);
     config = new LinkedHashMap<>();
     config.put("membership_lock", "true");

@@ -17,7 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer.systemhook;
 
-import java.util.Date;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SystemEvent {
   @JsonProperty("created_at")
-  private Date createdAt;
+  private Instant createdAt;
   @JsonProperty("event_name")
   private SystemEventName eventName;
   @JsonProperty("name")
@@ -39,11 +39,11 @@ public class SystemEvent {
   private String id;
   private Object object;
 
-  public Date getCreatedAt() {
+  public Instant getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(Date createdAt) {
+  public void setCreatedAt(Instant createdAt) {
     this.createdAt = createdAt;
   }
 

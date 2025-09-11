@@ -29,17 +29,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class EnforcerEventPublisher {
   private static final Logger AUDIT_LOG = LoggerFactory.getLogger("AUDIT_LOG");
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
+  
   private final AuditEventRepository eventRepository;
+  private final ObjectMapper objectMapper;
 
-  public EnforcerEventPublisher(AuditEventRepository eventRepository) {
+  public EnforcerEventPublisher(AuditEventRepository eventRepository, ObjectMapper objectMapper) {
     this.eventRepository = eventRepository;
+    this.objectMapper = objectMapper;
   }
 
   public void publishEvent(AuditEvent event) {
     try {
-      AUDIT_LOG.trace(MAPPER.writeValueAsString(event));
+      AUDIT_LOG.trace(objectMapper.writeValueAsString(event));
     } catch (JsonProcessingException e) {
       AUDIT_LOG.error("Error serializing audit event: {}", event, e);
     }

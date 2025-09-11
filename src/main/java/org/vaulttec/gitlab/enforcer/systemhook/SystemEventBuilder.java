@@ -17,7 +17,7 @@
  */
 package org.vaulttec.gitlab.enforcer.systemhook;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class SystemEventBuilder {
   private SystemEventName eventName;
@@ -58,7 +58,7 @@ public class SystemEventBuilder {
 
   public SystemEvent build() {
     SystemEvent event = new SystemEvent();
-    event.setCreatedAt(new Date(System.currentTimeMillis()));
+    event.setCreatedAt(Instant.now());
     event.setEventName(eventName);
     event.setName(name);
     event.setPath(path);

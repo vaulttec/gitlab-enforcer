@@ -33,8 +33,8 @@ public class SystemHooksController {
 
   private static final Logger LOG = LoggerFactory.getLogger(SystemHooksController.class);
 
-  private EnforcerClient client;
-  private EnforcerConfig config;
+  private final EnforcerClient client;
+  private final EnforcerConfig config;
 
   public SystemHooksController(EnforcerClient client, EnforcerConfig config) {
     this.client = client;
@@ -42,8 +42,8 @@ public class SystemHooksController {
   }
 
   @PostMapping(value = "/systemhooks", consumes = "application/json")
-  public void process(@RequestHeader(name = "X-Gitlab-Event", required = true) String header,
-      @RequestHeader(name = "X-Gitlab-Token", required = true) String token, @RequestBody SystemEvent event) {
+  public void process(@RequestHeader(name = "X-Gitlab-Event") String header,
+                      @RequestHeader(name = "X-Gitlab-Token") String token, @RequestBody SystemEvent event) {
     if (StringUtils.hasText(config.getSystemHookToken()) && !config.getSystemHookToken().equals(token)) {
       LOG.warn("Unexpected token '{}' - ignoring {} event '{}'", token, header, event.getEventName());
     } else {
